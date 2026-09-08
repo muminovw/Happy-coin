@@ -1,6 +1,6 @@
 <script>
   import { createEventDispatcher } from 'svelte';
-  import { supabase } from '../lib/supabaseClient'; // Fayl yo'li to'g'irlandi
+  import { supabase } from '../lib/supabaseClient'; // Fayl yo'lini o'z loyihangizga qarab tekshiring
 
   const dispatch = createEventDispatcher();
 
@@ -18,13 +18,14 @@
     successMessage = '';
 
     try {
+      // Supabase orqali ro'yxatdan o'tkazish va metadata'ga 'student' rolini yuborish
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
           data: {
             full_name: fullName,
-            role: 'student'
+            role: 'student' // Rol aniq student etib belgilanmoqda
           }
         }
       });

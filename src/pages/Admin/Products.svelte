@@ -85,7 +85,7 @@
         </div>
       </div>
 
-      <button type="submit" class="submit-btn">Mahsulot qo'shish</button>
+      <button type="submit" class="submit-btn">Mahsulot qo'shish.</button>
     </form>
   </div>
 

@@ -104,7 +104,7 @@
     </form>
 
     <div class="login-link">
-      <p>Hisobingiz bormi? <button type="button" class="link-btn" on:click={goToLogin}>Tizimga kirish</button></p>
+      <p>Hisobingiz bormi? <button type="button" class="link-btn" on:click={goToLogin}>Tizimga kirish.</button></p>
     </div>
   </div>
 </div>

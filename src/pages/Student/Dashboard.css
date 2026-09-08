@@ -1,0 +1,714 @@
+/* =========================================================
+   STUDENT DASHBOARD — PREMIUM RESPONSIVE DESIGN
+   ========================================================= */
+
+.student-dashboard {
+  --bg-main: #080b12;
+  --bg-card: rgba(17, 24, 39, 0.78);
+  --bg-card-hover: rgba(24, 33, 52, 0.92);
+
+  --border: rgba(148, 163, 184, 0.14);
+  --border-hover: rgba(16, 185, 129, 0.35);
+
+  --text-main: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+
+  --green: #10b981;
+  --green-light: #34d399;
+  --green-dark: #047857;
+
+  --gold: #f59e0b;
+  --blue: #3b82f6;
+  --purple: #8b5cf6;
+
+  position: relative;
+  width: 100%;
+  min-height: 100%;
+
+  padding: 32px;
+
+  color: var(--text-main);
+
+  font-family:
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+
+  box-sizing: border-box;
+}
+
+
+/* =========================================================
+   BACKGROUND GLOW
+   ========================================================= */
+
+.student-dashboard::before,
+.student-dashboard::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  z-index: 0;
+
+  width: 350px;
+  height: 350px;
+
+  border-radius: 50%;
+
+  filter: blur(100px);
+  opacity: 0.08;
+}
+
+.student-dashboard::before {
+  top: -150px;
+  right: -100px;
+  background: var(--green);
+}
+
+.student-dashboard::after {
+  bottom: -150px;
+  left: -100px;
+  background: var(--purple);
+}
+
+
+/* =========================================================
+   ALL CONTENT
+   ========================================================= */
+
+.student-dashboard > * {
+  position: relative;
+  z-index: 1;
+}
+
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.student-dashboard h2 {
+  margin: 0;
+
+  font-size: clamp(24px, 3vw, 34px);
+  line-height: 1.2;
+  font-weight: 800;
+  letter-spacing: -0.7px;
+
+  background: linear-gradient(
+    135deg,
+    #ffffff 0%,
+    #d1fae5 45%,
+    #10b981 100%
+  );
+
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.student-dashboard .subtitle {
+  margin: 8px 0 30px;
+
+  color: var(--text-secondary);
+
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+
+/* =========================================================
+   STATISTICS GRID
+   ========================================================= */
+
+.student-dashboard .stats-grid {
+  display: grid;
+
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+
+  gap: 20px;
+
+  margin-bottom: 38px;
+}
+
+
+/* =========================================================
+   STAT CARD
+   ========================================================= */
+
+.student-dashboard .stat-card {
+  position: relative;
+
+  min-width: 0;
+
+  display: flex;
+  align-items: center;
+
+  gap: 17px;
+
+  padding: 22px;
+
+  overflow: hidden;
+
+  border: 1px solid var(--border);
+  border-radius: 18px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(30, 41, 59, 0.9),
+      rgba(15, 23, 42, 0.76)
+    );
+
+  box-shadow:
+    0 15px 40px rgba(0, 0, 0, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.035);
+
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+
+  transition:
+    transform 0.3s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease,
+    background 0.3s ease;
+}
+
+.student-dashboard .stat-card::before {
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 2px;
+
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(16, 185, 129, 0.8),
+    transparent
+  );
+
+  opacity: 0;
+
+  transition: opacity 0.3s ease;
+}
+
+.student-dashboard .stat-card:hover {
+  transform: translateY(-5px);
+
+  border-color: var(--border-hover);
+
+  background: var(--bg-card-hover);
+
+  box-shadow:
+    0 20px 55px rgba(0, 0, 0, 0.3),
+    0 0 30px rgba(16, 185, 129, 0.06);
+}
+
+.student-dashboard .stat-card:hover::before {
+  opacity: 1;
+}
+
+
+/* =========================================================
+   STAT ICON
+   ========================================================= */
+
+.student-dashboard .stat-icon {
+  flex: 0 0 auto;
+
+  width: 58px;
+  height: 58px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 16px;
+
+  font-size: 27px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(16, 185, 129, 0.18),
+      rgba(16, 185, 129, 0.05)
+    );
+
+  border: 1px solid rgba(16, 185, 129, 0.18);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 8px 20px rgba(16, 185, 129, 0.08);
+
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.student-dashboard .stat-card:hover .stat-icon {
+  transform: scale(1.08) rotate(-3deg);
+
+  box-shadow:
+    0 10px 25px rgba(16, 185, 129, 0.16);
+}
+
+
+/* =========================================================
+   STAT INFORMATION
+   ========================================================= */
+
+.student-dashboard .stat-info {
+  min-width: 0;
+}
+
+.student-dashboard .stat-info h3 {
+  margin: 0 0 5px;
+
+  color: #ffffff;
+
+  font-size: clamp(21px, 2vw, 27px);
+  line-height: 1.1;
+
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.student-dashboard .stat-info p {
+  margin: 0;
+
+  color: var(--text-secondary);
+
+  font-size: 12px;
+  line-height: 1.4;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+
+/* =========================================================
+   HISTORY SECTION
+   ========================================================= */
+
+.student-dashboard .history-section {
+  width: 100%;
+}
+
+.student-dashboard .history-section h3 {
+  margin: 0 0 16px;
+
+  color: #ffffff;
+
+  font-size: 19px;
+  font-weight: 750;
+  letter-spacing: -0.2px;
+}
+
+
+/* =========================================================
+   TABLE CONTAINER
+   ========================================================= */
+
+.student-dashboard .table-container {
+  width: 100%;
+
+  overflow-x: auto;
+
+  border: 1px solid var(--border);
+  border-radius: 18px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(30, 41, 59, 0.88),
+      rgba(15, 23, 42, 0.82)
+    );
+
+  box-shadow:
+    0 18px 45px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.035);
+
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+
+  scrollbar-width: thin;
+  scrollbar-color: #334155 transparent;
+}
+
+
+/* =========================================================
+   TABLE
+   ========================================================= */
+
+.student-dashboard table {
+  width: 100%;
+  min-width: 650px;
+
+  border-collapse: collapse;
+
+  text-align: left;
+
+  font-size: 13px;
+}
+
+
+/* =========================================================
+   TABLE HEADER
+   ========================================================= */
+
+.student-dashboard thead {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(15, 23, 42, 0.96),
+      rgba(15, 23, 42, 0.72)
+    );
+}
+
+.student-dashboard th {
+  padding: 16px 20px;
+
+  color: #94a3b8;
+
+  border-bottom: 1px solid var(--border);
+
+  font-size: 11px;
+  font-weight: 700;
+
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+
+  white-space: nowrap;
+}
+
+
+/* =========================================================
+   TABLE BODY
+   ========================================================= */
+
+.student-dashboard td {
+  padding: 17px 20px;
+
+  color: #dbe4ef;
+
+  border-bottom: 1px solid rgba(148, 163, 184, 0.08);
+
+  vertical-align: middle;
+}
+
+.student-dashboard tbody tr {
+  transition:
+    background 0.25s ease,
+    transform 0.25s ease;
+}
+
+.student-dashboard tbody tr:hover {
+  background: rgba(16, 185, 129, 0.035);
+}
+
+.student-dashboard tbody tr:last-child td {
+  border-bottom: none;
+}
+
+
+/* =========================================================
+   TEACHER NAME
+   ========================================================= */
+
+.student-dashboard td:first-child {
+  color: #ffffff;
+
+  font-weight: 650;
+}
+
+
+/* =========================================================
+   COIN BADGE
+   ========================================================= */
+
+.student-dashboard .coin-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-width: 72px;
+
+  padding: 6px 10px;
+
+  border-radius: 9px;
+
+  color: #a7f3d0;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(6, 95, 70, 0.65),
+      rgba(4, 120, 87, 0.35)
+    );
+
+  border: 1px solid rgba(16, 185, 129, 0.2);
+
+  box-shadow:
+    0 5px 15px rgba(16, 185, 129, 0.08);
+
+  font-size: 11px;
+  font-weight: 800;
+
+  letter-spacing: 0.2px;
+
+  white-space: nowrap;
+}
+
+
+/* =========================================================
+   TIME
+   ========================================================= */
+
+.student-dashboard .time-col {
+  color: #64748b;
+
+  font-size: 12px;
+
+  white-space: nowrap;
+}
+
+
+/* =========================================================
+   TABLE SCROLLBAR
+   ========================================================= */
+
+.student-dashboard .table-container::-webkit-scrollbar {
+  height: 6px;
+}
+
+.student-dashboard .table-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.student-dashboard .table-container::-webkit-scrollbar-thumb {
+  background: #334155;
+
+  border-radius: 10px;
+}
+
+.student-dashboard .table-container::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
+
+
+/* =========================================================
+   LARGE TABLET
+   ========================================================= */
+
+@media (max-width: 1100px) {
+  .student-dashboard {
+    padding: 26px;
+  }
+
+  .student-dashboard .stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .student-dashboard .stat-card:last-child {
+    grid-column: 1 / -1;
+  }
+}
+
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (max-width: 768px) {
+  .student-dashboard {
+    padding: 22px 18px;
+  }
+
+  .student-dashboard h2 {
+    font-size: 26px;
+  }
+
+  .student-dashboard .subtitle {
+    margin-bottom: 24px;
+  }
+
+  .student-dashboard .stats-grid {
+    grid-template-columns: 1fr;
+
+    gap: 14px;
+
+    margin-bottom: 30px;
+  }
+
+  .student-dashboard .stat-card:last-child {
+    grid-column: auto;
+  }
+
+  .student-dashboard .stat-card {
+    padding: 18px;
+  }
+
+  .student-dashboard .stat-icon {
+    width: 52px;
+    height: 52px;
+
+    border-radius: 14px;
+
+    font-size: 24px;
+  }
+
+  .student-dashboard .stat-info h3 {
+    font-size: 23px;
+  }
+
+  .student-dashboard .history-section h3 {
+    font-size: 18px;
+  }
+
+  .student-dashboard .table-container {
+    border-radius: 14px;
+  }
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 480px) {
+  .student-dashboard {
+    padding: 18px 13px;
+  }
+
+  .student-dashboard h2 {
+    font-size: 23px;
+
+    letter-spacing: -0.4px;
+  }
+
+  .student-dashboard .subtitle {
+    margin-top: 6px;
+    margin-bottom: 20px;
+
+    font-size: 12px;
+  }
+
+  .student-dashboard .stats-grid {
+    gap: 12px;
+
+    margin-bottom: 26px;
+  }
+
+  .student-dashboard .stat-card {
+    gap: 13px;
+
+    padding: 15px;
+
+    border-radius: 15px;
+  }
+
+  .student-dashboard .stat-icon {
+    width: 47px;
+    height: 47px;
+
+    border-radius: 13px;
+
+    font-size: 21px;
+  }
+
+  .student-dashboard .stat-info h3 {
+    margin-bottom: 3px;
+
+    font-size: 20px;
+  }
+
+  .student-dashboard .stat-info p {
+    font-size: 11px;
+  }
+
+  .student-dashboard .history-section h3 {
+    margin-bottom: 12px;
+
+    font-size: 16px;
+  }
+
+  .student-dashboard .table-container {
+    border-radius: 13px;
+  }
+
+  .student-dashboard table {
+    min-width: 620px;
+
+    font-size: 12px;
+  }
+
+  .student-dashboard th {
+    padding: 13px 14px;
+
+    font-size: 10px;
+  }
+
+  .student-dashboard td {
+    padding: 14px;
+  }
+
+  .student-dashboard .coin-badge {
+    padding: 5px 8px;
+
+    font-size: 10px;
+  }
+}
+
+
+/* =========================================================
+   VERY SMALL DEVICES
+   ========================================================= */
+
+@media (max-width: 350px) {
+  .student-dashboard {
+    padding: 15px 10px;
+  }
+
+  .student-dashboard h2 {
+    font-size: 21px;
+  }
+
+  .student-dashboard .stat-card {
+    padding: 13px;
+  }
+
+  .student-dashboard .stat-icon {
+    width: 43px;
+    height: 43px;
+
+    font-size: 19px;
+  }
+
+  .student-dashboard .stat-info h3 {
+    font-size: 18px;
+  }
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .student-dashboard *,
+  .student-dashboard *::before,
+  .student-dashboard *::after {
+    animation: none !important;
+
+    transition: none !important;
+  }
+}

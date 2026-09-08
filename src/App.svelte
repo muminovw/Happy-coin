@@ -27,16 +27,13 @@
   import StudentLeaderboard from './pages/Student/Leaderboard.svelte';
   import StudentShop from './pages/Student/Shop.svelte';
 
-  // Hozirgi ichki sahifa holati (default: dashboard)
   let currentSubPage = 'dashboard';
 
   onMount(() => {
     // 1. Dastlab ishga tushganda sessiyani tekshirish
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
-        // Bu yerda foydalanuvchi rolini bazadan yoki user_metadata dan olasiz
-        const role = session.user.user_metadata?.role || 'student'; 
-        authActions.setSession(session, role);
+        authActions.setSession(session);
       } else {
         authActions.logout();
       }
@@ -45,8 +42,7 @@
     // 2. Autentifikatsiya holati o'zgarganda (Login / Logout) kuzatib borish
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session) {
-        const role = session.user.user_metadata?.role || 'student';
-        authActions.setSession(session, role);
+        authActions.setSession(session);
       } else {
         authActions.logout();
       }
@@ -59,18 +55,15 @@
 </script>
 
 {#if $authStore.loading}
-  <!-- Yuklanish jarayoni -->
   <div class="loading-screen">
     <p>Yuklanmoqda...</p>
   </div>
 
 {:else if !$authStore.session}
-  <!-- Agar foydalanuvchi kirmagan bo'lsa -->
   <Login />
 
 {:else}
-  <!-- Foydalanuvchi kirgan, roliga qarab Layout va sahifalarni ko'rsatamiz -->
-  
+  <!-- Foydalanuvchi roli bo'yicha yo'naltirish -->
   {#if $authStore.role === 'admin'}
     <AdminLayout on:navigate={(e) => currentSubPage = e.detail}>
       {#if currentSubPage === 'dashboard'}

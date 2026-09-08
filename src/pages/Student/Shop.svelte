@@ -1,23 +1,63 @@
 <script>
   import { onMount } from 'svelte';
+  // Supabase client ni o'z loyihangizdagi joylashuviga qarab import qiling (masalan: import { supabase } from '../../supabaseClient')
 
-  // Hozirgi o'quvchining balansi (buni Supabase'dan olasiz)
-  let myCoins = 145;
-
-  // Do'kondagi mahsulotlar ro'yxati
-  let shopItems = [
-    { id: 1, name: 'Maktab daftari (100 varaq)', price: 30, icon: '📓', stock: 15 },
-    { id: 2, name: 'Stilniy ruchka', price: 20, icon: '✒️', stock: 25 },
-    { id: 3, name: 'Matematika to‘plami', price: 80, icon: '📐', stock: 5 },
-    { id: 4, name: 'Stikerlar to‘plami', price: 15, icon: '🎨', stock: 40 },
-    { id: 5, name: 'Termos (Maxsus logotipli)', price: 150, icon: '🥤', stock: 3 },
-    { id: 6, name: 'USB Fleshka (32GB)', price: 250, icon: '💾', stock: 2 }
-  ];
-
+  let myCoins = 0;
+  let studentId = null;
+  let shopItems = [];
+  let loading = true;
+  let actionLoading = false;
   let successMessage = '';
   let errorMessage = '';
 
-  function handleBuyItem(item) {
+  onMount(async () => {
+    await fetchStudentData();
+    await fetchShopItems();
+  });
+
+  // 1. O'quvchining balansini Supabase'dan olish
+  async function fetchStudentData() {
+    try {
+      // Misol uchun auth holatini tekshirish
+      // const { data: { user } } = await supabase.auth.getUser();
+      // if (!user) return;
+      // studentId = user.id;
+
+      // const { data, error } = await supabase
+      //   .from('profiles')
+      //   .select('coins')
+      //   .eq('id', studentId)
+      //   .single();
+      // if (data) myCoins = data.coins;
+    } catch (err) {
+      console.error('Xatolik:', err.message);
+    }
+  }
+
+  // 2. Do'kondagi mahsulotlarni Supabase'dan olish
+  async function fetchShopItems() {
+    loading = true;
+    try {
+      // const { data, error } = await supabase.from('products').select('*');
+      // if (data) shopItems = data;
+
+      shopItems = [
+        { id: 1, name: 'Maktab daftari (100 varaq)', price: 30, icon: '📓', stock: 15 },
+        { id: 2, name: 'Stilniy ruchka', price: 20, icon: '✒️', stock: 25 },
+        { id: 3, name: 'Matematika to‘plami', price: 80, icon: '📐', stock: 5 },
+        { id: 4, name: 'Stikerlar to‘plami', price: 15, icon: '🎨', stock: 40 },
+        { id: 5, name: 'Termos (Maxsus logotipli)', price: 150, icon: '🥤', stock: 3 },
+        { id: 6, name: 'USB Fleshka (32GB)', price: 250, icon: '💾', stock: 2 }
+      ];
+    } catch (err) {
+      console.error('Mahsulotlarni olishda xatolik:', err.message);
+    } finally {
+      loading = false;
+    }
+  }
+
+  // 3. Xarid qilish jarayoni
+  async function handleBuyItem(item) {
     successMessage = '';
     errorMessage = '';
 
@@ -26,13 +66,18 @@
       return;
     }
 
-    // Bu yerda Supabase'ga xaridni yozish va balansni ayirish kodini yozasiz
-    myCoins -= item.price;
-    successMessage = `Tabriklaymiz! "${item.name}" muvaffaqiyatli sotib olindi.`;
+    actionLoading = true;
 
-    setTimeout(() => {
-      successMessage = '';
-    }, 3000);
+    try {
+      setTimeout(() => {
+        myCoins -= item.price;
+        successMessage = `Tabriklaymiz! "${item.name}" muvaffaqiyatli sotib olindi. Admin tasdiqlashini kuting.`;
+        actionLoading = false;
+      }, 800);
+    } catch (err) {
+      errorMessage = 'Xarid qilishda xatolik yuz berdi!';
+      actionLoading = false;
+    }
   }
 </script>
 
@@ -43,7 +88,6 @@
       <p class="subtitle">To'plagan coinlaringizga kerakli sovg'alar va buyumlarni xarid qiling</p>
     </div>
 
-    <!-- Foydalanuvchining balansi ko'rsatkichi -->
     <div class="balance-card">
       <span>Mening balansom:</span>
       <strong>🪙 {myCoins} coin</strong>
@@ -58,27 +102,30 @@
     <div class="alert error">{errorMessage}</div>
   {/if}
 
-  <!-- Mahsulotlar grid paneli -->
-  <div class="items-grid">
-    {#each shopItems as item}
-      <div class="item-card">
-        <div class="item-icon">{item.icon}</div>
-        <h3>{item.name}</h3>
-        <p class="stock-info">Qoldi: {item.stock} dona</p>
-        
-        <div class="card-footer">
-          <span class="price-tag">🪙 {item.price} coin</span>
-          <button 
-            class="buy-btn" 
-            on:click={() => handleBuyItem(item)}
-            disabled={myCoins < item.price}
-          >
-            Sotib olish
-          </button>
+  {#if loading}
+    <div class="loading-state">Mahsulotlar yuklanmoqda...</div>
+  {:else}
+    <div class="items-grid">
+      {#each shopItems as item}
+        <div class="item-card">
+          <div class="item-icon">{item.icon}</div>
+          <h3>{item.name}</h3>
+          <p class="stock-info">Qoldi: {item.stock} dona</p>
+          
+          <div class="card-footer">
+            <span class="price-tag">🪙 {item.price} coin</span>
+            <button 
+              class="buy-btn" 
+              on:click={() => handleBuyItem(item)}
+              disabled={myCoins < item.price || actionLoading || item.stock <= 0}
+            >
+              {actionLoading ? 'Jarayonda...' : 'Sotib olish'}
+            </button>
+          </div>
         </div>
-      </div>
-    {/each}
-  </div>
+      {/each}
+    </div>
+  {/if}
 </div>
 
 <style>
@@ -207,6 +254,13 @@
     background: #334155;
     color: #64748b;
     cursor: not-allowed;
+  }
+
+  .loading-state {
+    text-align: center;
+    color: #94a3b8;
+    padding: 40px;
+    font-size: 15px;
   }
 
   .alert {

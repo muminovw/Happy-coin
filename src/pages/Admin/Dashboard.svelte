@@ -1,7 +1,7 @@
 <script>
-  import { onMount } from 'svelte';
+  import { supabase } from '../../lib/SupabaseClient'; // Faylingiz joylashgan yo'l
 
-  // Admin uchun umumiy statistika (bularni Supabase bazasidan chaqirib ulab qo'yasiz)
+  // Admin uchun umumiy statistika
   let adminStats = {
     totalUsers: 142,
     totalTeachers: 8,
@@ -16,11 +16,32 @@
     { id: 2, user: 'Aziz Rahimov (O\'qituvchi)', action: '15 ta o\'quvchiga coin berdi', cost: '--', time: '1 soat oldin' },
     { id: 3, user: 'Malika Karimova', action: 'Stilniy ruchka sotib oldi', cost: 20, time: '3 soat oldin' }
   ];
+
+  // Chiqish va login sahifasiga o'tkazish funksiyasi
+  async function handleLogout() {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+
+      // Supabase sessiyasi yopilgach, login sahifasiga yo'naltirish
+      window.location.href = '/login'; 
+    } catch (error) {
+      console.error('Tizimdan chiqishda xatolik:', error.message);
+    }
+  }
 </script>
 
 <div class="admin-dashboard">
-  <h2>Admin Dashboard</h2>
-  <p class="subtitle">Tizimning umumiy holati va statistikasi bilan tanishing</p>
+  <!-- Sarlavha va Chiqish tugmasi -->
+  <div class="dashboard-header">
+    <div>
+      <h2>Admin Dashboard</h2>
+      <p class="subtitle">Tizimning umumiy holati va statistikasi bilan tanishing</p>
+    </div>
+    <button class="logout-btn" on:click={handleLogout} type="button">
+      🚪 Chiqish
+    </button>
+  </div>
 
   <!-- Statistika kartochkalari -->
   <div class="stats-grid">
@@ -71,7 +92,7 @@
           </tr>
         </thead>
         <tbody>
-          {#each recentAdminActivity as activity}
+          {#each recentAdminActivity as activity (activity.id)}
             <tr>
               <td class="user-col">{activity.user}</td>
               <td>{activity.action}</td>
@@ -95,17 +116,53 @@
   .admin-dashboard {
     font-family: sans-serif;
     color: #f8fafc;
+    padding: 24px;
+    background-color: #0f172a;
+    min-height: 100vh;
+  }
+
+  .dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    gap: 15px;
+    flex-wrap: wrap;
   }
 
   h2 {
     font-size: 24px;
     margin-bottom: 4px;
+    color: #f8fafc;
   }
 
   .subtitle {
     color: #94a3b8;
     font-size: 14px;
-    margin-bottom: 25px;
+    margin: 0;
+  }
+
+  .logout-btn {
+    background-color: #ef4444;
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .logout-btn:hover {
+    background-color: #dc2626;
+  }
+
+  .logout-btn:active {
+    transform: scale(0.98);
   }
 
   .stats-grid {
@@ -134,25 +191,27 @@
 
   .stat-info h3 {
     font-size: 22px;
-    margin-bottom: 2px;
+    margin: 0 0 2px 0;
     color: #f43f5e;
   }
 
   .stat-info p {
     font-size: 13px;
     color: #94a3b8;
+    margin: 0;
   }
 
   .recent-section h3 {
     font-size: 18px;
     margin-bottom: 15px;
+    color: #f8fafc;
   }
 
   .table-container {
     background: #1e293b;
     border-radius: 10px;
     border: 1px solid #334155;
-    overflow: hidden;
+    overflow-x: auto;
   }
 
   table {
@@ -165,6 +224,7 @@
   th, td {
     padding: 12px 20px;
     border-bottom: 1px solid #334155;
+    white-space: nowrap;
   }
 
   th {

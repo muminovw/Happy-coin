@@ -1,85 +1,115 @@
 <script>
   import { createEventDispatcher } from 'svelte';
-  import { supabase } from '../lib/supabaseClient'; // O'z papkangiz yo'liga qarab tekshiring
+  import { supabase } from '../lib/supabaseClient'; // Fayl yo'li to'g'irlandi
 
   const dispatch = createEventDispatcher();
 
+  let fullName = '';
   let email = '';
   let password = '';
   let errorMessage = '';
+  let successMessage = '';
   let loading = false;
 
-  async function handleLogin(event) {
+  async function handleRegister(event) {
     event.preventDefault();
     loading = true;
     errorMessage = '';
+    successMessage = '';
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signUp({
         email,
-        password
+        password,
+        options: {
+          data: {
+            full_name: fullName,
+            role: 'student'
+          }
+        }
       });
 
       if (error) throw error;
 
-      // Muvaffaqiyatli kirilgach, App.svelte o'zi avtomatik Dashboard'ga o'tkazadi
+      successMessage = "Muvaffaqiyatli ro'yxatdan o'tdingiz! Tizimga kirish sahifasiga o'tkazilmoqda...";
+      
+      setTimeout(() => {
+        dispatch('switchToLogin');
+      }, 1500);
+
     } catch (error) {
-      errorMessage = error.message || "Email yoki parol xato kiritildi.";
+      errorMessage = error.message || "Ro'yxatdan o'tishda xatolik yuz berdi.";
     } finally {
       loading = false;
     }
   }
 
-  function goToRegister() {
-    dispatch('switchToRegister'); // App.svelte'dagi register oynasini ochish uchun
+  function goToLogin() {
+    dispatch('switchToLogin');
   }
 </script>
 
-<div class="login-container">
-  <div class="login-card">
-    <h2>Tizimga Kirish</h2>
-    <p class="subtitle">Iltimos, akkauntingizga kiring</p>
+<div class="register-container">
+  <div class="register-card">
+    <h2>O'quvchi sifatida ro'yxatdan o'tish</h2>
+    <p class="subtitle">Maktab tizimiga xush kelibsiz! Ma'lumotlaringizni kiriting.</p>
 
     {#if errorMessage}
       <div class="alert error">{errorMessage}</div>
     {/if}
 
-    <form on:submit={handleLogin}>
+    {#if successMessage}
+      <div class="alert success">{successMessage}</div>
+    {/if}
+
+    <form on:submit={handleRegister}>
       <div class="form-group">
-        <label for="email">Email manzil</label>
+        <label for="fullName">F.I.O (To'liq ism)</label>
         <input 
-          type="email" 
-          id="email" 
-          bind:value={email} 
-          placeholder="ism@example.com" 
+          type="text" 
+          id="fullName" 
+          bind:value={fullName} 
+          placeholder="Anvar Muminov" 
           required 
         />
       </div>
 
       <div class="form-group">
-        <label for="parol">Parol</label>
+        <label for="email">Elektron pochta (Email)</label>
+        <input 
+          type="email" 
+          id="email" 
+          bind:value={email} 
+          placeholder="example@mail.com" 
+          required 
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="password">Parol</label>
         <input 
           type="password" 
-          id="parol" 
+          id="password" 
           bind:value={password} 
           placeholder="********" 
+          minlength="6"
           required 
         />
       </div>
 
       <button type="submit" class="submit-btn" disabled={loading}>
-        {loading ? "Kirilmoqda..." : "Kirish"}
+        {loading ? "Ro'yxatdan o'tilmoqda..." : "Ro'yxatdan o'tish"}
       </button>
     </form>
 
-    <div class="register-link">
-      <p>Hisobingiz yo'qmi? <button type="button" class="link-btn" on:click={goToRegister}>Ro'yxatdan o'tish</button></p>
+    <div class="login-link">
+      <p>Hisobingiz bormi? <button type="button" class="link-btn" on:click={goToLogin}>Tizimga kirish</button></p>
     </div>
   </div>
 </div>
 
 <style>
-  .login-container {
+  .register-container {
     font-family: sans-serif;
     background-color: #0f172a;
     color: #f8fafc;
@@ -91,7 +121,7 @@
     box-sizing: border-box;
   }
 
-  .login-card {
+  .register-card {
     background: #1e293b;
     padding: 30px;
     border-radius: 12px;
@@ -105,14 +135,12 @@
     font-size: 22px;
     margin-bottom: 6px;
     color: #f8fafc;
-    text-align: center;
   }
 
   .subtitle {
     color: #94a3b8;
     font-size: 13px;
     margin-bottom: 25px;
-    text-align: center;
   }
 
   .form-group {
@@ -142,12 +170,12 @@
   }
 
   input:focus {
-    border-color: #6366f1;
+    border-color: #3b82f6;
   }
 
   .submit-btn {
     width: 100%;
-    background-color: #6366f1;
+    background-color: #3b82f6;
     color: white;
     border: none;
     padding: 12px;
@@ -160,7 +188,7 @@
   }
 
   .submit-btn:hover {
-    background-color: #4f46e5;
+    background-color: #2563eb;
   }
 
   .submit-btn:disabled {
@@ -181,7 +209,13 @@
     border: 1px solid #991b1b;
   }
 
-  .register-link {
+  .success {
+    background-color: #065f46;
+    color: #a7f3d0;
+    border: 1px solid #047857;
+  }
+
+  .login-link {
     text-align: center;
     margin-top: 20px;
     font-size: 13px;
@@ -191,7 +225,7 @@
   .link-btn {
     background: none;
     border: none;
-    color: #6366f1;
+    color: #3b82f6;
     cursor: pointer;
     font-size: 13px;
     font-weight: 500;
@@ -200,6 +234,6 @@
   }
 
   .link-btn:hover {
-    color: #818cf8;
+    color: #60a5fa;
   }
 </style>

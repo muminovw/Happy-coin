@@ -1,0 +1,766 @@
+/* =========================================================
+   PREMIUM CLASSMATES PAGE
+   White / Gold / Warm Brown
+   ========================================================= */
+
+:root {
+  --students-bg: #f8f7f4;
+  --students-white: #ffffff;
+
+  --students-text: #211d18;
+  --students-text-soft: #746d64;
+  --students-muted: #a39b91;
+
+  --students-gold: #b89452;
+  --students-gold-light: #d8bd83;
+  --students-gold-dark: #8d6b35;
+
+  --students-border: rgba(184, 148, 82, 0.16);
+
+  --students-shadow:
+    0 20px 55px rgba(55, 42, 24, 0.07),
+    0 5px 18px rgba(55, 42, 24, 0.04);
+}
+
+/* =========================================================
+   MAIN CONTAINER
+   ========================================================= */
+
+.students-container {
+  position: relative;
+
+  min-height: 100%;
+  width: 100%;
+
+  padding: 34px;
+
+  box-sizing: border-box;
+
+  overflow: hidden;
+
+  color: var(--students-text);
+
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Arial,
+    sans-serif;
+
+  background:
+    radial-gradient(
+      circle at 90% 0%,
+      rgba(216, 189, 131, 0.13),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at 0% 100%,
+      rgba(184, 148, 82, 0.08),
+      transparent 30%
+    ),
+    linear-gradient(
+      135deg,
+      #ffffff 0%,
+      #faf9f6 55%,
+      #f4f1eb 100%
+    );
+}
+
+/* =========================================================
+   DECORATIVE BACKGROUND
+   ========================================================= */
+
+.students-container::before {
+  content: "";
+
+  position: absolute;
+
+  width: 360px;
+  height: 360px;
+
+  top: -190px;
+  right: -120px;
+
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(184, 148, 82, 0.13),
+      transparent 68%
+    );
+
+  pointer-events: none;
+}
+
+.students-container::after {
+  content: "";
+
+  position: absolute;
+
+  width: 280px;
+  height: 280px;
+
+  bottom: -160px;
+  left: -100px;
+
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(216, 189, 131, 0.10),
+      transparent 70%
+    );
+
+  pointer-events: none;
+}
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.header-section {
+  position: relative;
+  z-index: 2;
+
+  display: flex;
+
+  align-items: flex-end;
+
+  justify-content: space-between;
+
+  gap: 30px;
+
+  margin-bottom: 28px;
+
+  animation: headerAppear 0.55s ease;
+}
+
+.header-section h2 {
+  margin: 0 0 7px;
+
+  font-size: 30px;
+
+  line-height: 1.2;
+
+  font-weight: 800;
+
+  letter-spacing: -0.7px;
+
+  color: var(--students-text);
+}
+
+.header-section h2::after {
+  content: "";
+
+  display: block;
+
+  width: 42px;
+  height: 3px;
+
+  margin-top: 12px;
+
+  border-radius: 999px;
+
+  background:
+    linear-gradient(
+      90deg,
+      var(--students-gold-dark),
+      var(--students-gold-light)
+    );
+}
+
+.subtitle {
+  margin: 13px 0 0;
+
+  color: var(--students-text-soft);
+
+  font-size: 14px;
+
+  line-height: 1.6;
+}
+
+/* =========================================================
+   SEARCH
+   ========================================================= */
+
+.search-box {
+  position: relative;
+
+  width: 280px;
+
+  flex-shrink: 0;
+}
+
+.search-box::before {
+  content: "⌕";
+
+  position: absolute;
+
+  left: 16px;
+  top: 50%;
+
+  transform: translateY(-52%);
+
+  color: var(--students-gold-dark);
+
+  font-size: 22px;
+
+  font-weight: 500;
+
+  pointer-events: none;
+
+  z-index: 2;
+}
+
+.search-box input {
+  width: 100%;
+  height: 49px;
+
+  padding: 0 16px 0 45px;
+
+  box-sizing: border-box;
+
+  border: 1px solid var(--students-border);
+
+  border-radius: 14px;
+
+  outline: none;
+
+  background:
+    rgba(255, 255, 255, 0.92);
+
+  color: var(--students-text);
+
+  font-family: inherit;
+
+  font-size: 13px;
+
+  box-shadow:
+    0 7px 22px rgba(55, 42, 24, 0.04);
+
+  transition:
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    transform 0.25s ease;
+}
+
+.search-box input::placeholder {
+  color: #aaa299;
+}
+
+.search-box input:hover {
+  border-color: rgba(184, 148, 82, 0.3);
+}
+
+.search-box input:focus {
+  border-color: var(--students-gold);
+
+  background: #ffffff;
+
+  transform: translateY(-1px);
+
+  box-shadow:
+    0 0 0 4px rgba(184, 148, 82, 0.09),
+    0 12px 25px rgba(55, 42, 24, 0.07);
+}
+
+/* =========================================================
+   TABLE CONTAINER
+   ========================================================= */
+
+.table-container {
+  position: relative;
+  z-index: 2;
+
+  width: 100%;
+
+  overflow-x: auto;
+
+  border: 1px solid rgba(184, 148, 82, 0.13);
+
+  border-radius: 22px;
+
+  background:
+    rgba(255, 255, 255, 0.94);
+
+  box-shadow: var(--students-shadow);
+
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+
+  animation: tableAppear 0.65s ease;
+
+  scrollbar-width: thin;
+  scrollbar-color: var(--students-gold-light) transparent;
+}
+
+/* =========================================================
+   TABLE
+   ========================================================= */
+
+table {
+  width: 100%;
+
+  min-width: 700px;
+
+  border-collapse: separate;
+
+  border-spacing: 0;
+}
+
+/* =========================================================
+   TABLE HEADER
+   ========================================================= */
+
+thead {
+  background:
+    linear-gradient(
+      180deg,
+      #fffefa,
+      #faf8f3
+    );
+}
+
+thead tr {
+  height: 62px;
+}
+
+th {
+  padding: 0 22px;
+
+  border-bottom: 1px solid var(--students-border);
+
+  text-align: left;
+
+  color: #81776b;
+
+  font-size: 11px;
+
+  font-weight: 750;
+
+  letter-spacing: 0.8px;
+
+  text-transform: uppercase;
+
+  white-space: nowrap;
+}
+
+th:first-child {
+  padding-left: 27px;
+
+  border-top-left-radius: 22px;
+}
+
+th:last-child {
+  border-top-right-radius: 22px;
+}
+
+/* =========================================================
+   TABLE BODY
+   ========================================================= */
+
+tbody tr {
+  height: 78px;
+
+  background: #ffffff;
+
+  transition:
+    background 0.25s ease,
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+tbody tr:not(:last-child) td {
+  border-bottom: 1px solid rgba(184, 148, 82, 0.09);
+}
+
+tbody tr:hover {
+  position: relative;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(184, 148, 82, 0.045),
+      rgba(216, 189, 131, 0.025)
+    );
+}
+
+td {
+  padding: 14px 22px;
+
+  color: var(--students-text-soft);
+
+  font-size: 13px;
+
+  white-space: nowrap;
+}
+
+td:first-child {
+  padding-left: 27px;
+}
+
+/* =========================================================
+   STUDENT NAME
+   ========================================================= */
+
+.student-name {
+  display: flex;
+
+  align-items: center;
+
+  gap: 13px;
+
+  color: var(--students-text);
+
+  font-weight: 650;
+}
+
+/* =========================================================
+   AVATAR
+   ========================================================= */
+
+.avatar {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 41px;
+  height: 41px;
+
+  flex-shrink: 0;
+
+  border: 1px solid rgba(184, 148, 82, 0.28);
+
+  border-radius: 13px;
+
+  color: var(--students-gold-dark);
+
+  background:
+    linear-gradient(
+      135deg,
+      #fffdf8,
+      #f4ead6
+    );
+
+  font-size: 14px;
+
+  font-weight: 800;
+
+  box-shadow:
+    0 6px 15px rgba(55, 42, 24, 0.06);
+
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+tbody tr:hover .avatar {
+  transform: translateY(-2px) scale(1.04);
+
+  box-shadow:
+    0 9px 20px rgba(184, 148, 82, 0.14);
+}
+
+/* =========================================================
+   CLASS
+   ========================================================= */
+
+td:nth-child(2) {
+  color: #635b51;
+
+  font-weight: 600;
+}
+
+/* =========================================================
+   STATUS
+   ========================================================= */
+
+.status-badge {
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 7px;
+
+  padding: 7px 11px;
+
+  border: 1px solid rgba(61, 142, 91, 0.14);
+
+  border-radius: 999px;
+
+  color: #438158;
+
+  background:
+    rgba(74, 157, 100, 0.075);
+
+  font-size: 11px;
+
+  font-weight: 700;
+}
+
+.status-badge::before {
+  content: "";
+
+  width: 6px;
+  height: 6px;
+
+  border-radius: 50%;
+
+  background: #5aa36f;
+
+  box-shadow:
+    0 0 0 3px rgba(90, 163, 111, 0.10);
+}
+
+/* =========================================================
+   COINS
+   ========================================================= */
+
+.coin-pill {
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 7px;
+
+  padding: 8px 12px;
+
+  border: 1px solid rgba(184, 148, 82, 0.17);
+
+  border-radius: 10px;
+
+  color: var(--students-gold-dark);
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(216, 189, 131, 0.14),
+      rgba(184, 148, 82, 0.06)
+    );
+
+  font-size: 12px;
+
+  font-weight: 750;
+
+  box-shadow:
+    0 5px 13px rgba(55, 42, 24, 0.035);
+
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+tbody tr:hover .coin-pill {
+  transform: translateY(-1px);
+
+  box-shadow:
+    0 8px 17px rgba(184, 148, 82, 0.10);
+}
+
+/* =========================================================
+   EMPTY STATE
+   ========================================================= */
+
+.no-data {
+  height: 180px;
+
+  text-align: center !important;
+
+  color: var(--students-muted);
+
+  font-size: 14px;
+
+  font-weight: 500;
+}
+
+.no-data::before {
+  content: "⌕";
+
+  display: block;
+
+  margin-bottom: 8px;
+
+  color: var(--students-gold-light);
+
+  font-size: 28px;
+}
+
+/* =========================================================
+   SCROLLBAR
+   ========================================================= */
+
+.table-container::-webkit-scrollbar {
+  height: 7px;
+}
+
+.table-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+
+  background:
+    linear-gradient(
+      90deg,
+      var(--students-gold-light),
+      var(--students-gold)
+    );
+}
+
+/* =========================================================
+   ANIMATIONS
+   ========================================================= */
+
+@keyframes headerAppear {
+  from {
+    opacity: 0;
+
+    transform: translateY(-12px);
+  }
+
+  to {
+    opacity: 1;
+
+    transform: translateY(0);
+  }
+}
+
+@keyframes tableAppear {
+  from {
+    opacity: 0;
+
+    transform: translateY(18px);
+  }
+
+  to {
+    opacity: 1;
+
+    transform: translateY(0);
+  }
+}
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (max-width: 850px) {
+  .students-container {
+    padding: 27px;
+  }
+
+  .header-section {
+    align-items: flex-start;
+
+    flex-direction: column;
+
+    gap: 20px;
+  }
+
+  .search-box {
+    width: 100%;
+    max-width: 400px;
+  }
+}
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 600px) {
+  .students-container {
+    padding: 20px 15px;
+  }
+
+  .header-section {
+    margin-bottom: 20px;
+  }
+
+  .header-section h2 {
+    font-size: 25px;
+  }
+
+  .subtitle {
+    max-width: 400px;
+
+    font-size: 13px;
+  }
+
+  .search-box {
+    width: 100%;
+    max-width: none;
+  }
+
+  .search-box input {
+    height: 47px;
+  }
+
+  .table-container {
+    border-radius: 18px;
+  }
+
+  th:first-child {
+    padding-left: 20px;
+  }
+
+  td:first-child {
+    padding-left: 20px;
+  }
+
+  th,
+  td {
+    padding-left: 17px;
+    padding-right: 17px;
+  }
+}
+
+/* =========================================================
+   SMALL MOBILE
+   ========================================================= */
+
+@media (max-width: 400px) {
+  .students-container {
+    padding: 17px 11px;
+  }
+
+  .header-section h2 {
+    font-size: 23px;
+  }
+
+  .table-container {
+    border-radius: 16px;
+  }
+}
+
+/* =========================================================
+   ACCESSIBILITY
+   ========================================================= */
+
+.search-box input:focus-visible {
+  outline: 3px solid rgba(184, 148, 82, 0.15);
+
+  outline-offset: 2px;
+}
+
+/* =========================================================
+   REDUCED MOTION
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .header-section,
+  .table-container,
+  .avatar,
+  .coin-pill,
+  .search-box input,
+  tbody tr {
+    animation: none;
+
+    transition: none;
+  }
+}

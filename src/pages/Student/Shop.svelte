@@ -1,81 +1,148 @@
 <script>
-  import { onMount } from 'svelte';
-  // Supabase client ni o'z loyihangizdagi joylashuviga qarab import qiling (masalan: import { supabase } from '../../supabaseClient')
+  import { onMount, onDestroy } from 'svelte';
+  import { supabase } from '../../lib/SupabaseClient';
+  import './Shop.css';
 
   let myCoins = 0;
-  let studentId = null;
+  let currentUser = null;
   let shopItems = [];
   let loading = true;
   let actionLoading = false;
   let successMessage = '';
   let errorMessage = '';
+  let channel = null;
 
   onMount(async () => {
     await fetchStudentData();
     await fetchShopItems();
+    setupRealtimeSubscription();
   });
 
-  // 1. O'quvchining balansini Supabase'dan olish
+  onDestroy(() => {
+    if (channel) {
+      supabase.removeChannel(channel);
+    }
+  });
+
+  // 1. O'quvchining balansini tranzaksiyalardan hisoblash
   async function fetchStudentData() {
     try {
-      // Misol uchun auth holatini tekshirish
-      // const { data: { user } } = await supabase.auth.getUser();
-      // if (!user) return;
-      // studentId = user.id;
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      if (authError || !user) {
+        errorMessage = "Foydalanuvchi tizimga kirmagan!";
+        return;
+      }
+      currentUser = user;
 
-      // const { data, error } = await supabase
-      //   .from('profiles')
-      //   .select('coins')
-      //   .eq('id', studentId)
-      //   .single();
-      // if (data) myCoins = data.coins;
+      const { data, error } = await supabase
+        .from('transactions')
+        .select('amount')
+        .eq('student_id', currentUser.id);
+
+      if (error) {
+        console.error('Balansni yuklashda xatolik:', error);
+        errorMessage = "Balansni yuklashda xatolik: " + error.message;
+        return;
+      }
+
+      if (data) {
+        myCoins = data.reduce((acc, tx) => acc + (Number(tx.amount) || 0), 0);
+      }
     } catch (err) {
-      console.error('Xatolik:', err.message);
+      console.error('Kutilmagan xatolik:', err);
+      errorMessage = 'Kutilmagan xatolik yuz berdi.';
     }
   }
 
-  // 2. Do'kondagi mahsulotlarni Supabase'dan olish
+  // 2. Do'kon mahsulotlarini Supabase bazasidan tortib kelish
   async function fetchShopItems() {
     loading = true;
     try {
-      // const { data, error } = await supabase.from('products').select('*');
-      // if (data) shopItems = data;
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .order('created_at', { ascending: false });
 
-      shopItems = [
-        { id: 1, name: 'Maktab daftari (100 varaq)', price: 30, icon: '📓', stock: 15 },
-        { id: 2, name: 'Stilniy ruchka', price: 20, icon: '✒️', stock: 25 },
-        { id: 3, name: 'Matematika to‘plami', price: 80, icon: '📐', stock: 5 },
-        { id: 4, name: 'Stikerlar to‘plami', price: 15, icon: '🎨', stock: 40 },
-        { id: 5, name: 'Termos (Maxsus logotipli)', price: 150, icon: '🥤', stock: 3 },
-        { id: 6, name: 'USB Fleshka (32GB)', price: 250, icon: '💾', stock: 2 }
-      ];
+      if (error) throw error;
+      shopItems = data || [];
     } catch (err) {
       console.error('Mahsulotlarni olishda xatolik:', err.message);
+      errorMessage = 'Mahsulotlarni yuklab bo\'lmadi.';
     } finally {
       loading = false;
     }
   }
 
-  // 3. Xarid qilish jarayoni
+  // Realtime: Admin yangi mahsulot qo'shsa yoki o'chirsa o'quvchida avtomatik yangilanishi
+  function setupRealtimeSubscription() {
+    channel = supabase
+      .channel('public:shop_products_sync')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'products' },
+        async () => {
+          await fetchShopItems();
+        }
+      )
+      .subscribe();
+  }
+
+  // 3. Xarid qilish funksiyasi
   async function handleBuyItem(item) {
     successMessage = '';
     errorMessage = '';
+
+    if (!currentUser) {
+      errorMessage = "Foydalanuvchi aniqlanmadi!";
+      return;
+    }
 
     if (myCoins < item.price) {
       errorMessage = `Afsuski, "${item.name}" uchun coinlaringiz yetarli emas!`;
       return;
     }
 
+    if (item.stock <= 0) {
+      errorMessage = `Kechirasiz, "${item.name}" tugagan!`;
+      return;
+    }
+
     actionLoading = true;
 
     try {
-      setTimeout(() => {
-        myCoins -= item.price;
-        successMessage = `Tabriklaymiz! "${item.name}" muvaffaqiyatli sotib olindi. Admin tasdiqlashini kuting.`;
-        actionLoading = false;
-      }, 800);
+      // 1. Tranzaksiyaga yozish (coin ayirish)
+      const { error: txError } = await supabase.from('transactions').insert([
+        {
+          student_id: currentUser.id,
+          amount: -item.price,
+          reason: `Xarid: ${item.name}`,
+          type: 'shop_purchase'
+        }
+      ]);
+
+      if (txError) throw txError;
+
+      // 2. Products jadvalidan qoldiqni (stock) 1 taga kamaytirish
+      const newStock = item.stock - 1;
+      const { error: updateError } = await supabase
+        .from('products')
+        .update({ stock: newStock })
+        .eq('id', item.id);
+
+      if (updateError) throw updateError;
+
+      // Muvaffaqiyatli yakunlash
+      myCoins -= item.price;
+      item.stock = newStock; // Ekranda darhol kamayib ko'rinishi uchun
+      successMessage = `Tabriklaymiz! "${item.name}" muvaffaqiyatli sotib olindi.`;
+      
+      // Bazadagi o'zgarishni to'liq sinxronlash uchun
+      await fetchShopItems();
+
     } catch (err) {
-      errorMessage = 'Xarid qilishda xatolik yuz berdi!';
+      console.error('Xarid qilishda xatolik tafsiloti:', err);
+      errorMessage = 'Xarid qilishda xatolik: ' + (err.message || JSON.stringify(err));
+    } finally {
       actionLoading = false;
     }
   }
@@ -89,7 +156,7 @@
     </div>
 
     <div class="balance-card">
-      <span>Mening balansom:</span>
+      <span>Mening balansim:</span>
       <strong>🪙 {myCoins} coin</strong>
     </div>
   </div>
@@ -104,11 +171,13 @@
 
   {#if loading}
     <div class="loading-state">Mahsulotlar yuklanmoqda...</div>
+  {:else if shopItems.length === 0}
+    <div class="loading-state">Hozircha do'konda mahsulotlar mavjud emas.</div>
   {:else}
     <div class="items-grid">
-      {#each shopItems as item}
+      {#each shopItems as item (item.id)}
         <div class="item-card">
-          <div class="item-icon">{item.icon}</div>
+          <div class="item-icon">{item.icon || '🎁'}</div>
           <h3>{item.name}</h3>
           <p class="stock-info">Qoldi: {item.stock} dona</p>
           
@@ -119,7 +188,7 @@
               on:click={() => handleBuyItem(item)}
               disabled={myCoins < item.price || actionLoading || item.stock <= 0}
             >
-              {actionLoading ? 'Jarayonda...' : 'Sotib olish'}
+              {actionLoading ? 'Jarayonda...' : (item.stock > 0 ? 'Sotib olish' : 'Tugagan')}
             </button>
           </div>
         </div>
@@ -127,156 +196,3 @@
     </div>
   {/if}
 </div>
-
-<style>
-  .shop-container {
-    font-family: sans-serif;
-    color: #f8fafc;
-  }
-
-  .header-section {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 25px;
-    flex-wrap: wrap;
-    gap: 15px;
-  }
-
-  h2 {
-    font-size: 24px;
-    margin-bottom: 4px;
-  }
-
-  .subtitle {
-    color: #94a3b8;
-    font-size: 14px;
-  }
-
-  .balance-card {
-    background: #1e293b;
-    border: 1px solid #334155;
-    padding: 12px 20px;
-    border-radius: 10px;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-  }
-
-  .balance-card span {
-    font-size: 12px;
-    color: #94a3b8;
-  }
-
-  .balance-card strong {
-    font-size: 18px;
-    color: #10b981;
-  }
-
-  .items-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 20px;
-  }
-
-  .item-card {
-    background: #1e293b;
-    border: 1px solid #334155;
-    border-radius: 12px;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    transition: transform 0.2s;
-  }
-
-  .item-card:hover {
-    transform: translateY(-3px);
-    border-color: #475569;
-  }
-
-  .item-icon {
-    font-size: 40px;
-    background: #0f172a;
-    width: 70px;
-    height: 70px;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 5px;
-  }
-
-  .item-card h3 {
-    font-size: 16px;
-    font-weight: 600;
-    color: #f8fafc;
-  }
-
-  .stock-info {
-    font-size: 12px;
-    color: #94a3b8;
-    margin-bottom: 10px;
-  }
-
-  .card-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: auto;
-    padding-top: 15px;
-    border-top: 1px solid #334155;
-  }
-
-  .price-tag {
-    font-weight: bold;
-    color: #34d399;
-    font-size: 14px;
-  }
-
-  .buy-btn {
-    background: #10b981;
-    color: white;
-    border: none;
-    padding: 8px 14px;
-    border-radius: 6px;
-    font-size: 13px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background 0.2s;
-  }
-
-  .buy-btn:hover:not(:disabled) {
-    background: #059669;
-  }
-
-  .buy-btn:disabled {
-    background: #334155;
-    color: #64748b;
-    cursor: not-allowed;
-  }
-
-  .loading-state {
-    text-align: center;
-    color: #94a3b8;
-    padding: 40px;
-    font-size: 15px;
-  }
-
-  .alert {
-    padding: 12px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    font-size: 14px;
-  }
-
-  .alert.success {
-    background: #065f46;
-    color: #d1fae5;
-  }
-
-  .alert.error {
-    background: #991b1b;
-    color: #fee2e2;
-  }
-</style>

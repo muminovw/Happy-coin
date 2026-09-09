@@ -1,20 +1,90 @@
 <script>
-  import { createEventDispatcher } from 'svelte';
+  import { createEventDispatcher, onMount } from 'svelte';
   import { supabase } from '../../lib/SupabaseClient';
+  import "./StudentLayout.css";
   import { authActions } from '../../stores/auth';
 
   const dispatch = createEventDispatcher();
   let activePage = 'dashboard';
 
+  let currentUser = null;
+  let balance = 0;
+  let transactions = [];
+  let realtimeChannel = null;
+
   function navigate(page) {
     activePage = page;
-    dispatch('navigate', page); // App.svelte ga sahifani o'zgartirishni xabar qilamiz
+    dispatch('navigate', page);
   }
 
   async function handleLogout() {
+    if (realtimeChannel) {
+      supabase.removeChannel(realtimeChannel);
+    }
     await supabase.auth.signOut();
     authActions.logout();
   }
+
+  async function initUserAndBalance() {
+    const { data: { user }, error } = await supabase.auth.getUser();
+    if (error || !user) return;
+
+    currentUser = user;
+    await loadTransactions();
+    setupRealtime();
+  }
+
+  async function loadTransactions() {
+    if (!currentUser) return;
+
+    const { data, error } = await supabase
+      .from('transactions')
+      .select('amount')
+      .eq('student_id', currentUser.id);
+
+    if (!error && data) {
+      transactions = data;
+      calculateBalance();
+    }
+  }
+
+  function calculateBalance() {
+    let currentBalance = 0;
+    for (const tx of transactions) {
+      currentBalance += Number(tx.amount) || 0;
+    }
+    balance = currentBalance;
+  }
+
+  function setupRealtime() {
+    if (!currentUser) return;
+
+    realtimeChannel = supabase
+      .channel(`sidebar-balance-${currentUser.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'transactions',
+          filter: `student_id=eq.${currentUser.id}`
+        },
+        () => {
+          loadTransactions();
+        }
+      )
+      .subscribe();
+  }
+
+  onMount(() => {
+    initUserAndBalance();
+
+    return () => {
+      if (realtimeChannel) {
+        supabase.removeChannel(realtimeChannel);
+      }
+    };
+  });
 </script>
 
 <div class="layout-container">
@@ -24,12 +94,29 @@
       <h3>Student Panel</h3>
     </div>
 
+    <!-- Sidebar Balans Widgeti -->
+    <div class="sidebar-balance-card">
+      <span class="sidebar-balance-title">Mening balansim</span>
+      <div class="sidebar-balance-value">
+        <span class="coin-icon">🪙</span>
+        <strong>{balance}</strong>
+        <small>COINS</small>
+      </div>
+    </div>
+
     <nav class="sidebar-nav">
       <button 
         class:active={activePage === 'dashboard'} 
         on:click={() => navigate('dashboard')}
       >
         📊 Dashboard
+      </button>
+
+      <button 
+        class:active={activePage === 'balance'} 
+        on:click={() => navigate('balance')}
+      >
+        💰 Balans va Tarix
       </button>
 
       <button 
@@ -62,123 +149,9 @@
     </header>
 
     <div class="content-body">
-      <!-- Slot orqali App.svelte'dan kelgan student sahifalari chiqadi -->
-      <slot />
+      <!-- SLOT PROPS: currentUser va balance ni ichki sahifalarga uzatamiz -->
+      <slot {currentUser} {balance} />
     </div>
   </main>
 </div>
 
-<style>
-  .layout-container {
-    display: flex;
-    height: 100vh;
-    background: #0f172a;
-    color: #f8fafc;
-    font-family: sans-serif;
-  }
-
-  /* Sidebar dizayni */
-  .sidebar {
-    width: 260px;
-    background: #1e293b;
-    display: flex;
-    flex-direction: column;
-    border-right: 1px solid #334155;
-  }
-
-  .sidebar-header {
-    padding: 20px;
-    font-size: 18px;
-    font-weight: bold;
-    border-bottom: 1px solid #334155;
-    text-align: center;
-    color: #10b981;
-  }
-
-  .sidebar-nav {
-    flex: 1;
-    padding: 20px 10px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .sidebar-nav button {
-    width: 100%;
-    padding: 12px 15px;
-    background: transparent;
-    color: #94a3b8;
-    border: none;
-    border-radius: 8px;
-    text-align: left;
-    font-size: 14px;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  .sidebar-nav button:hover {
-    background: #334155;
-    color: #f8fafc;
-  }
-
-  .sidebar-nav button.active {
-    background: #10b981;
-    color: white;
-    font-weight: bold;
-  }
-
-  .sidebar-footer {
-    padding: 15px;
-    border-top: 1px solid #334155;
-  }
-
-  .logout-btn {
-    width: 100%;
-    padding: 10px;
-    background: #ef4444;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: background 0.2s;
-  }
-
-  .logout-btn:hover {
-    background: #dc2626;
-  }
-
-  /* Asosiy qism dizayni */
-  .main-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    overflow-y: auto;
-  }
-
-  .top-navbar {
-    height: 60px;
-    background: #1e293b;
-    border-bottom: 1px solid #334155;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0 25px;
-  }
-
-  .top-navbar h2 {
-    font-size: 18px;
-  }
-
-  .user-role {
-    background: #334155;
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-size: 12px;
-    color: #10b981;
-  }
-
-  .content-body {
-    padding: 25px;
-  }
-</style>

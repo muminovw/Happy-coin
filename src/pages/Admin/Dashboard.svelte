@@ -1,111 +1,155 @@
 <script>
-  import { supabase } from '../../lib/SupabaseClient'; // Faylingiz joylashgan yo'l
+  import { onMount } from 'svelte';
+  import { supabase } from '../../lib/SupabaseClient';
 
-  // Admin uchun umumiy statistika
-  let adminStats = {
-    totalUsers: 142,
-    totalTeachers: 8,
-    totalStudents: 130,
-    totalOrdersPending: 12,
-    activeProducts: 6
-  };
+  let totalStudents = 0;
+  let totalCoinsInCirculation = 0;
+  let totalProducts = 0;
+  let pendingOrders = 0;
+  let recentActivities = [];
+  let loading = true;
 
-  // Oxirgi qilingan xaridlar yoki faoliyatlar
-  let recentAdminActivity = [
-    { id: 1, user: 'Anvar Muminov', action: 'Maktab daftari sotib oldi', cost: 30, time: '15 minut oldin' },
-    { id: 2, user: 'Aziz Rahimov (O\'qituvchi)', action: '15 ta o\'quvchiga coin berdi', cost: '--', time: '1 soat oldin' },
-    { id: 3, user: 'Malika Karimova', action: 'Stilniy ruchka sotib oldi', cost: 20, time: '3 soat oldin' }
-  ];
+  onMount(async () => {
+    await fetchAdminDashboardData();
+  });
 
-  // Chiqish va login sahifasiga o'tkazish funksiyasi
-  async function handleLogout() {
+  async function fetchAdminDashboardData() {
     try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
+      loading = true;
 
-      // Supabase sessiyasi yopilgach, login sahifasiga yo'naltirish
-      window.location.href = '/login'; 
-    } catch (error) {
-      console.error('Tizimdan chiqishda xatolik:', error.message);
+      // 1. Jami o'quvchilar sonini olish (role = 'student')
+      const { count: studentCount, error: studentError } = await supabase
+        .from('profiles')
+        .select('*', { count: 'exact', head: true })
+        .eq('role', 'student');
+
+      if (!studentError) {
+        totalStudents = studentCount || 0;
+      }
+
+      // 2. Muomaladagi jami coinlar (barcha tranzaksiyalar yig'indisi)
+      const { data: txData, error: txError } = await supabase
+        .from('transactions')
+        .select('amount');
+
+      if (!txError && txData) {
+        totalCoinsInCirculation = txData.reduce((sum, tx) => sum + (Number(tx.amount) || 0), 0);
+      }
+
+      // 3. Do'kondagi jami mahsulotlar soni
+      const { count: productCount, error: productError } = await supabase
+        .from('products')
+        .select('*', { count: 'exact', head: true });
+
+      if (!productError) {
+        totalProducts = productCount || 0;
+      }
+
+      // 4. Tasdiqlash kutilayotgan buyurtmalar soni (status = 'pending')
+      const { count: orderCount, error: orderError } = await supabase
+        .from('orders')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'pending');
+
+      if (!orderError) {
+        pendingOrders = orderCount || 0;
+      }
+
+      // 5. So'nggi faolliklar / tranzaksiyalar tarixi
+      const { data: recentTx, error: recentError } = await supabase
+        .from('transactions')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(5);
+
+      if (!recentError && recentTx) {
+        recentActivities = recentTx;
+      }
+
+    } catch (err) {
+      console.error('Admin dashboard ma\'lumotlarini yuklashda xatolik:', err);
+    } finally {
+      loading = false;
     }
   }
 </script>
 
 <div class="admin-dashboard">
-  <!-- Sarlavha va Chiqish tugmasi -->
-  <div class="dashboard-header">
-    <div>
-      <h2>Admin Dashboard</h2>
-      <p class="subtitle">Tizimning umumiy holati va statistikasi bilan tanishing</p>
-    </div>
-    <button class="logout-btn" on:click={handleLogout} type="button">
-      🚪 Chiqish
-    </button>
+  <div class="header-section">
+    <h1>Admin Boshqaruv Paneli</h1>
+    <p>Tizimdagi umumiy statistika va so'nggi jarayonlarni kuzatib boring</p>
   </div>
 
   <!-- Statistika kartochkalari -->
   <div class="stats-grid">
     <div class="stat-card">
-      <div class="stat-icon">👥</div>
+      <div class="stat-icon-box users">👥</div>
       <div class="stat-info">
-        <h3>{adminStats.totalUsers}</h3>
-        <p>Jami Foydalanuvchilar</p>
+        <h3>{loading ? '...' : totalStudents}</h3>
+        <p>Jami O'quvchilar</p>
       </div>
     </div>
 
     <div class="stat-card">
-      <div class="stat-icon">👨‍🏫</div>
+      <div class="stat-icon-box coins">🪙</div>
       <div class="stat-info">
-        <h3>{adminStats.totalTeachers}</h3>
-        <p>O'qituvchilar</p>
+        <h3>{loading ? '...' : totalCoinsInCirculation}</h3>
+        <p>Muomaladagi Coinlar</p>
       </div>
     </div>
 
     <div class="stat-card">
-      <div class="stat-icon">📦</div>
+      <div class="stat-icon-box products">🛍️</div>
       <div class="stat-info">
-        <h3>{adminStats.totalOrdersPending}</h3>
+        <h3>{loading ? '...' : totalProducts}</h3>
+        <p>Do'kondagi Tovarlar</p>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon-box orders">📦</div>
+      <div class="stat-info">
+        <h3>{loading ? '...' : pendingOrders}</h3>
         <p>Kutilayotgan Buyurtmalar</p>
-      </div>
-    </div>
-
-    <div class="stat-card">
-      <div class="stat-icon">🛍️</div>
-      <div class="stat-info">
-        <h3>{adminStats.activeProducts}</h3>
-        <p>Do'kondagi Mahsulotlar</p>
       </div>
     </div>
   </div>
 
-  <!-- So'nggi amallar jadvali -->
+  <!-- So'nggi tranzaksiyalar / Faolliklar jadvali -->
   <div class="recent-section">
-    <h3>Tizimdagi so'nggi harakatlar</h3>
-    <div class="table-container">
+    <h3>So'nggi Tranzaksiyalar va Harakatlar</h3>
+    
+    <div class="table-wrapper">
       <table>
         <thead>
           <tr>
-            <th>Foydalanuvchi</th>
-            <th>Amal / Harakat</th>
-            <th>Sarflangan Coin</th>
-            <th>Vaqt</th>
+            <th>TAVSIF / SABAB</th>
+            <th>MIQDOR</th>
+            <th>SANA</th>
           </tr>
         </thead>
         <tbody>
-          {#each recentAdminActivity as activity (activity.id)}
+          {#if loading}
             <tr>
-              <td class="user-col">{activity.user}</td>
-              <td>{activity.action}</td>
-              <td>
-                {#if activity.cost !== '--'}
-                  <span class="coin-badge">-{activity.cost} coin</span>
-                {:else}
-                  <span class="dash-badge">--</span>
-                {/if}
-              </td>
-              <td class="time-col">{activity.time}</td>
+              <td colspan="3" class="empty-row">Ma'lumotlar yuklanmoqda...</td>
             </tr>
-          {/each}
+          {:else if recentActivities.length === 0}
+            <tr>
+              <td colspan="3" class="empty-row">Hozircha faolliklar mavjud emas.</td>
+            </tr>
+          {:else}
+            {#each recentActivities as item}
+              <tr>
+                <td>{item.reason || 'Tizim operatsiyasi'}</td>
+                <td>
+                  <span class="badge" class:positive={item.amount > 0} class:negative={item.amount < 0}>
+                    {item.amount > 0 ? `+${item.amount}` : item.amount} coin
+                  </span>
+                </td>
+                <td class="date-col">{new Date(item.created_at).toLocaleString()}</td>
+              </tr>
+            {/each}
+          {/if}
         </tbody>
       </table>
     </div>
@@ -114,103 +158,90 @@
 
 <style>
   .admin-dashboard {
-    font-family: sans-serif;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 10px;
+  }
+
+  .header-section {
+    margin-bottom: 24px;
+  }
+
+  .header-section h1 {
+    font-size: 26px;
+    font-weight: 800;
     color: #f8fafc;
-    padding: 24px;
-    background-color: #0f172a;
-    min-height: 100vh;
+    margin: 0 0 6px 0;
   }
 
-  .dashboard-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 25px;
-    gap: 15px;
-    flex-wrap: wrap;
-  }
-
-  h2 {
-    font-size: 24px;
-    margin-bottom: 4px;
-    color: #f8fafc;
-  }
-
-  .subtitle {
+  .header-section p {
     color: #94a3b8;
     font-size: 14px;
     margin: 0;
   }
 
-  .logout-btn {
-    background-color: #ef4444;
-    color: white;
-    border: none;
-    padding: 10px 18px;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.2s, transform 0.1s;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .logout-btn:hover {
-    background-color: #dc2626;
-  }
-
-  .logout-btn:active {
-    transform: scale(0.98);
-  }
-
+  /* Statistika kataklari */
   .stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 20px;
-    margin-bottom: 35px;
+    margin-bottom: 32px;
   }
 
   .stat-card {
     background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 16px;
     padding: 20px;
-    border-radius: 10px;
     display: flex;
     align-items: center;
-    gap: 15px;
-    border: 1px solid #334155;
+    gap: 16px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   }
 
-  .stat-icon {
-    font-size: 32px;
-    background: #334155;
-    padding: 12px;
-    border-radius: 8px;
+  .stat-icon-box {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
   }
+
+  .stat-icon-box.users { background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.2); }
+  .stat-icon-box.coins { background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); }
+  .stat-icon-box.products { background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.2); }
+  .stat-icon-box.orders { background: rgba(168, 85, 247, 0.1); border: 1px solid rgba(168, 85, 247, 0.2); }
 
   .stat-info h3 {
-    font-size: 22px;
-    margin: 0 0 2px 0;
-    color: #f43f5e;
-  }
-
-  .stat-info p {
-    font-size: 13px;
-    color: #94a3b8;
-    margin: 0;
-  }
-
-  .recent-section h3 {
-    font-size: 18px;
-    margin-bottom: 15px;
+    margin: 0 0 4px 0;
+    font-size: 24px;
+    font-weight: 800;
     color: #f8fafc;
   }
 
-  .table-container {
+  .stat-info p {
+    margin: 0;
+    font-size: 13px;
+    color: #94a3b8;
+  }
+
+  /* So'nggi harakatlar bo'limi */
+  .recent-section {
     background: #1e293b;
-    border-radius: 10px;
     border: 1px solid #334155;
+    border-radius: 16px;
+    padding: 24px;
+  }
+
+  .recent-section h3 {
+    margin: 0 0 16px 0;
+    font-size: 18px;
+    color: #f8fafc;
+  }
+
+  .table-wrapper {
     overflow-x: auto;
   }
 
@@ -218,45 +249,56 @@
     width: 100%;
     border-collapse: collapse;
     text-align: left;
-    font-size: 14px;
-  }
-
-  th, td {
-    padding: 12px 20px;
-    border-bottom: 1px solid #334155;
-    white-space: nowrap;
   }
 
   th {
-    background: #0f172a;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
     color: #94a3b8;
-    font-weight: 600;
+    padding: 12px 16px;
+    border-bottom: 1px solid #334155;
+  }
+
+  td {
+    padding: 14px 16px;
+    font-size: 14px;
+    color: #e2e8f0;
+    border-bottom: 1px solid rgba(51, 65, 85, 0.5);
   }
 
   tr:last-child td {
     border-bottom: none;
   }
 
-  .user-col {
-    font-weight: 500;
-    color: #f8fafc;
-  }
-
-  .coin-badge {
-    background: #7f1d1d;
-    color: #fecaca;
-    padding: 4px 8px;
+  .badge {
+    display: inline-block;
+    padding: 4px 10px;
     border-radius: 6px;
+    font-size: 12px;
     font-weight: bold;
-    font-size: 12px;
   }
 
-  .dash-badge {
-    color: #64748b;
+  .badge.positive {
+    background: rgba(16, 185, 129, 0.1);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.2);
   }
 
-  .time-col {
+  .badge.negative {
+    background: rgba(239, 68, 68, 0.1);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+  }
+
+  .date-col {
     color: #94a3b8;
-    font-size: 12px;
+    font-size: 13px;
+  }
+
+  .empty-row {
+    text-align: center;
+    color: #94a3b8;
+    padding: 24px;
   }
 </style>

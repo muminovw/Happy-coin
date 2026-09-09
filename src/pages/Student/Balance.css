@@ -1,0 +1,1500 @@
+/* =========================================================
+   PREMIUM STUDENT BALANCE
+   Theme: White / Champagne Gold / Warm Brown
+   ========================================================= */
+
+:root {
+  --balance-bg: #f8f7f4;
+  --balance-white: #ffffff;
+  --balance-white-soft: #fcfbf8;
+
+  --balance-text: #211d18;
+  --balance-text-soft: #746d64;
+  --balance-muted: #a39b91;
+
+  --balance-gold: #b89452;
+  --balance-gold-light: #d9bf89;
+  --balance-gold-dark: #8d6b35;
+
+  --balance-green: #4e8c67;
+  --balance-green-light: #edf6f0;
+
+  --balance-red: #ad5c5c;
+  --balance-red-light: #fbefef;
+
+  --balance-border: rgba(184, 148, 82, 0.16);
+
+  --balance-shadow:
+    0 20px 55px rgba(55, 42, 24, 0.07),
+    0 5px 18px rgba(55, 42, 24, 0.035);
+}
+
+/* =========================================================
+   PAGE
+   ========================================================= */
+
+.balance-page {
+  position: relative;
+
+  width: 100%;
+  max-width: 1180px;
+
+  min-height: 100%;
+
+  margin: 0 auto;
+  padding: 34px;
+
+  box-sizing: border-box;
+
+  color: var(--balance-text);
+
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Arial,
+    sans-serif;
+
+  background:
+    radial-gradient(
+      circle at 90% 0%,
+      rgba(216, 189, 131, 0.13),
+      transparent 26%
+    ),
+    radial-gradient(
+      circle at 0% 100%,
+      rgba(184, 148, 82, 0.07),
+      transparent 30%
+    );
+}
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.page-header {
+  position: relative;
+  z-index: 2;
+
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+
+  gap: 25px;
+
+  margin-bottom: 28px;
+
+  animation: fadeUp 0.55s ease both;
+}
+
+.eyebrow,
+.section-eyebrow {
+  display: block;
+
+  margin-bottom: 9px;
+
+  color: var(--balance-gold-dark);
+
+  font-size: 10px;
+
+  font-weight: 850;
+
+  letter-spacing: 2px;
+}
+
+.header-content h1 {
+  margin: 0;
+
+  color: var(--balance-text);
+
+  font-size: 34px;
+
+  line-height: 1.1;
+
+  font-weight: 850;
+
+  letter-spacing: -1.3px;
+}
+
+.header-content p {
+  max-width: 600px;
+
+  margin: 10px 0 0;
+
+  color: var(--balance-text-soft);
+
+  font-size: 14px;
+
+  line-height: 1.65;
+}
+
+/* =========================================================
+   GOLD UNDERLINE
+   ========================================================= */
+
+.header-content h1::after {
+  content: "";
+
+  display: block;
+
+  width: 45px;
+  height: 3px;
+
+  margin-top: 14px;
+
+  border-radius: 999px;
+
+  background:
+    linear-gradient(
+      90deg,
+      var(--balance-gold-dark),
+      var(--balance-gold-light)
+    );
+}
+
+/* =========================================================
+   REFRESH BUTTON
+   ========================================================= */
+
+.refresh-button {
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  min-width: 112px;
+  height: 45px;
+
+  padding: 0 15px;
+
+  border: 1px solid var(--balance-border);
+
+  border-radius: 13px;
+
+  color: var(--balance-gold-dark);
+
+  background:
+    linear-gradient(
+      145deg,
+      #ffffff,
+      #faf8f3
+    );
+
+  box-shadow:
+    0 8px 22px rgba(55, 42, 24, 0.055);
+
+  font-family: inherit;
+
+  font-size: 12px;
+
+  font-weight: 750;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    background 0.25s ease;
+}
+
+.refresh-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+
+  border-color: rgba(184, 148, 82, 0.36);
+
+  background: #ffffff;
+
+  box-shadow:
+    0 13px 28px rgba(55, 42, 24, 0.09);
+}
+
+.refresh-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.refresh-button:disabled {
+  opacity: 0.65;
+
+  cursor: not-allowed;
+}
+
+.refresh-icon {
+  display: inline-flex;
+
+  font-size: 19px;
+
+  line-height: 1;
+}
+
+.refresh-button.refreshing .refresh-icon {
+  animation: rotate 0.8s linear infinite;
+}
+
+@keyframes rotate {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* =========================================================
+   ERROR
+   ========================================================= */
+
+.error-box {
+  position: relative;
+  z-index: 2;
+
+  display: flex;
+
+  align-items: flex-start;
+
+  gap: 13px;
+
+  margin-bottom: 22px;
+
+  padding: 15px 17px;
+
+  border: 1px solid rgba(173, 92, 92, 0.18);
+
+  border-radius: 15px;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(173, 92, 92, 0.065),
+      rgba(173, 92, 92, 0.025)
+    );
+
+  box-shadow:
+    0 8px 25px rgba(100, 40, 40, 0.04);
+
+  animation: fadeUp 0.35s ease both;
+}
+
+.error-icon {
+  display: grid;
+
+  place-items: center;
+
+  width: 29px;
+  height: 29px;
+
+  flex-shrink: 0;
+
+  border-radius: 50%;
+
+  color: var(--balance-red);
+
+  background: var(--balance-red-light);
+
+  font-size: 13px;
+
+  font-weight: 850;
+}
+
+.error-box strong {
+  color: #8f4949;
+
+  font-size: 13px;
+}
+
+.error-box p {
+  margin: 4px 0 0;
+
+  color: var(--balance-text-soft);
+
+  font-size: 12px;
+
+  line-height: 1.5;
+}
+
+/* =========================================================
+   BALANCE HERO
+   ========================================================= */
+
+.balance-hero {
+  position: relative;
+
+  z-index: 2;
+
+  overflow: hidden;
+
+  min-height: 235px;
+
+  margin-bottom: 20px;
+
+  padding: 30px;
+
+  box-sizing: border-box;
+
+  border: 1px solid rgba(184, 148, 82, 0.18);
+
+  border-radius: 24px;
+
+  background:
+    radial-gradient(
+      circle at 90% 10%,
+      rgba(216, 189, 131, 0.20),
+      transparent 30%
+    ),
+    radial-gradient(
+      circle at 10% 90%,
+      rgba(184, 148, 82, 0.09),
+      transparent 28%
+    ),
+    linear-gradient(
+      135deg,
+      #ffffff 0%,
+      #fcfaf6 58%,
+      #f5eee1 100%
+    );
+
+  box-shadow:
+    0 25px 70px rgba(55, 42, 24, 0.10),
+    0 5px 20px rgba(55, 42, 24, 0.04);
+
+  animation:
+    heroAppear 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* =========================================================
+   HERO SHINE
+   ========================================================= */
+
+.balance-hero::before {
+  content: "";
+
+  position: absolute;
+
+  top: -120px;
+  right: 140px;
+
+  width: 280px;
+  height: 280px;
+
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(216, 189, 131, 0.22),
+      transparent 70%
+    );
+
+  filter: blur(15px);
+
+  pointer-events: none;
+}
+
+.balance-hero::after {
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 1px;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(184, 148, 82, 0.45),
+      transparent
+    );
+}
+
+/* =========================================================
+   HERO GLOW
+   ========================================================= */
+
+.hero-glow {
+  position: absolute;
+
+  width: 220px;
+  height: 220px;
+
+  border-radius: 50%;
+
+  filter: blur(60px);
+
+  pointer-events: none;
+}
+
+.glow-one {
+  top: -150px;
+  right: -80px;
+
+  background:
+    rgba(216, 189, 131, 0.15);
+}
+
+.glow-two {
+  bottom: -170px;
+  left: 120px;
+
+  background:
+    rgba(184, 148, 82, 0.08);
+}
+
+/* =========================================================
+   HERO CONTENT
+   ========================================================= */
+
+.hero-top {
+  position: relative;
+
+  z-index: 3;
+
+  display: flex;
+
+  align-items: flex-start;
+
+  justify-content: space-between;
+}
+
+.balance-label {
+  display: block;
+
+  margin-bottom: 10px;
+
+  color: #998b77;
+
+  font-size: 10px;
+
+  font-weight: 850;
+
+  letter-spacing: 2px;
+}
+
+.balance-value {
+  display: flex;
+
+  align-items: baseline;
+
+  gap: 12px;
+
+  color: var(--balance-text);
+
+  font-size: 64px;
+
+  line-height: 1;
+
+  font-weight: 900;
+
+  letter-spacing: -3.5px;
+}
+
+.coin-text {
+  color: var(--balance-gold-dark);
+
+  font-size: 12px;
+
+  font-weight: 850;
+
+  letter-spacing: 1.7px;
+}
+
+/* =========================================================
+   COIN SYMBOL
+   ========================================================= */
+
+.coin-symbol {
+  position: relative;
+
+  display: grid;
+
+  place-items: center;
+
+  width: 68px;
+  height: 68px;
+
+  border: 1px solid rgba(184, 148, 82, 0.25);
+
+  border-radius: 20px;
+
+  color: var(--balance-gold-dark);
+
+  background:
+    linear-gradient(
+      145deg,
+      #ffffff,
+      #f5ead4
+    );
+
+  font-size: 29px;
+
+  box-shadow:
+    0 15px 32px rgba(55, 42, 24, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+
+  animation: coinFloat 4s ease-in-out infinite;
+}
+
+.coin-symbol::before {
+  content: "";
+
+  position: absolute;
+
+  inset: 6px;
+
+  border: 1px solid rgba(184, 148, 82, 0.10);
+
+  border-radius: 15px;
+}
+
+@keyframes coinFloat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+/* =========================================================
+   HERO BOTTOM
+   ========================================================= */
+
+.hero-bottom {
+  position: relative;
+
+  z-index: 3;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  margin-top: 58px;
+
+  padding-top: 18px;
+
+  border-top: 1px solid rgba(184, 148, 82, 0.14);
+}
+
+.hero-status {
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  color: var(--balance-text-soft);
+
+  font-size: 11px;
+}
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+
+  border-radius: 50%;
+
+  background: #629873;
+
+  box-shadow:
+    0 0 0 4px rgba(98, 152, 115, 0.09);
+}
+
+.student-name {
+  max-width: 240px;
+
+  overflow: hidden;
+
+  color: var(--balance-text);
+
+  font-size: 12px;
+
+  font-weight: 750;
+
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
+}
+
+/* =========================================================
+   SKELETON NUMBER
+   ========================================================= */
+
+.skeleton-number {
+  display: inline-block;
+
+  width: 170px;
+  height: 55px;
+
+  border-radius: 12px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #f0ece4 25%,
+      #faf8f3 50%,
+      #f0ece4 75%
+    );
+
+  background-size: 200% 100%;
+
+  animation: skeleton 1.4s ease infinite;
+}
+
+@keyframes skeleton {
+  from {
+    background-position: 200% 0;
+  }
+
+  to {
+    background-position: -200% 0;
+  }
+}
+
+/* =========================================================
+   STATS
+   ========================================================= */
+
+.stats-grid {
+  position: relative;
+
+  z-index: 2;
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 16px;
+
+  margin-bottom: 30px;
+}
+
+.stat-card {
+  position: relative;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 15px;
+
+  min-height: 108px;
+
+  padding: 20px;
+
+  box-sizing: border-box;
+
+  overflow: hidden;
+
+  border: 1px solid var(--balance-border);
+
+  border-radius: 18px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #ffffff,
+      #fcfaf6
+    );
+
+  box-shadow: var(--balance-shadow);
+
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
+}
+
+.stat-card::after {
+  content: "";
+
+  position: absolute;
+
+  width: 100px;
+  height: 100px;
+
+  right: -50px;
+  bottom: -50px;
+
+  border-radius: 50%;
+
+  background:
+    rgba(216, 189, 131, 0.08);
+
+  pointer-events: none;
+}
+
+.stat-card:hover {
+  transform: translateY(-4px);
+
+  border-color: rgba(184, 148, 82, 0.28);
+
+  box-shadow:
+    0 25px 60px rgba(55, 42, 24, 0.10),
+    0 5px 20px rgba(55, 42, 24, 0.04);
+}
+
+/* =========================================================
+   STAT ICON
+   ========================================================= */
+
+.stat-icon {
+  position: relative;
+
+  z-index: 2;
+
+  display: grid;
+
+  place-items: center;
+
+  width: 45px;
+  height: 45px;
+
+  flex-shrink: 0;
+
+  border-radius: 13px;
+
+  font-size: 19px;
+
+  font-weight: 850;
+}
+
+.stat-icon.earned {
+  border: 1px solid rgba(78, 140, 103, 0.14);
+
+  color: var(--balance-green);
+
+  background:
+    var(--balance-green-light);
+}
+
+.stat-icon.spent {
+  border: 1px solid rgba(173, 92, 92, 0.13);
+
+  color: var(--balance-red);
+
+  background:
+    var(--balance-red-light);
+}
+
+.stat-icon.transactions {
+  border: 1px solid rgba(184, 148, 82, 0.16);
+
+  color: var(--balance-gold-dark);
+
+  background:
+    #f8f1e5;
+}
+
+/* =========================================================
+   STAT CONTENT
+   ========================================================= */
+
+.stat-content {
+  position: relative;
+
+  z-index: 2;
+
+  display: flex;
+
+  flex-direction: column;
+
+  min-width: 0;
+}
+
+.stat-content > span {
+  color: var(--balance-text-soft);
+
+  font-size: 11px;
+
+  font-weight: 550;
+}
+
+.stat-content strong {
+  margin-top: 3px;
+
+  color: var(--balance-text);
+
+  font-size: 24px;
+
+  line-height: 1.1;
+
+  font-weight: 850;
+}
+
+.stat-content small {
+  margin-top: 3px;
+
+  color: var(--balance-muted);
+
+  font-size: 10px;
+}
+
+/* =========================================================
+   HISTORY SECTION
+   ========================================================= */
+
+.history-section {
+  position: relative;
+
+  z-index: 2;
+
+  overflow: hidden;
+
+  border: 1px solid var(--balance-border);
+
+  border-radius: 21px;
+
+  background:
+    rgba(255, 255, 255, 0.92);
+
+  box-shadow: var(--balance-shadow);
+
+  animation: fadeUp 0.7s ease both;
+}
+
+/* =========================================================
+   SECTION HEADER
+   ========================================================= */
+
+.section-header {
+  display: flex;
+
+  align-items: flex-end;
+
+  justify-content: space-between;
+
+  gap: 15px;
+
+  padding: 23px 25px;
+
+  border-bottom: 1px solid rgba(184, 148, 82, 0.11);
+
+  background:
+    linear-gradient(
+      180deg,
+      #ffffff,
+      #fdfbf7
+    );
+}
+
+.section-eyebrow {
+  margin-bottom: 6px;
+}
+
+.section-header h2 {
+  margin: 0;
+
+  color: var(--balance-text);
+
+  font-size: 20px;
+
+  line-height: 1.2;
+
+  font-weight: 820;
+
+  letter-spacing: -0.3px;
+}
+
+.transaction-count {
+  padding: 7px 11px;
+
+  border: 1px solid rgba(184, 148, 82, 0.13);
+
+  border-radius: 999px;
+
+  color: var(--balance-gold-dark);
+
+  background: #fbf7ee;
+
+  font-size: 10px;
+
+  font-weight: 750;
+}
+
+/* =========================================================
+   TRANSACTION LIST
+   ========================================================= */
+
+.transaction-list {
+  display: flex;
+
+  flex-direction: column;
+}
+
+.transaction {
+  display: flex;
+
+  align-items: center;
+
+  gap: 15px;
+
+  min-height: 82px;
+
+  padding: 15px 25px;
+
+  box-sizing: border-box;
+
+  border-bottom: 1px solid rgba(184, 148, 82, 0.075);
+
+  background: #ffffff;
+
+  transition:
+    background 0.25s ease,
+    padding-left 0.25s ease;
+}
+
+.transaction:last-child {
+  border-bottom: 0;
+}
+
+.transaction:hover {
+  padding-left: 29px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #fffdf8,
+      #ffffff
+    );
+}
+
+/* =========================================================
+   TRANSACTION ICON
+   ========================================================= */
+
+.transaction-icon {
+  display: grid;
+
+  place-items: center;
+
+  width: 43px;
+  height: 43px;
+
+  flex-shrink: 0;
+
+  border-radius: 13px;
+
+  font-size: 19px;
+
+  font-weight: 900;
+}
+
+.transaction-icon.income {
+  border: 1px solid rgba(78, 140, 103, 0.14);
+
+  color: var(--balance-green);
+
+  background:
+    var(--balance-green-light);
+}
+
+.transaction-icon.expense {
+  border: 1px solid rgba(173, 92, 92, 0.13);
+
+  color: var(--balance-red);
+
+  background:
+    var(--balance-red-light);
+}
+
+/* =========================================================
+   TRANSACTION INFO
+   ========================================================= */
+
+.transaction-info {
+  flex: 1;
+
+  min-width: 0;
+}
+
+.transaction-info h3 {
+  overflow: hidden;
+
+  margin: 0 0 5px;
+
+  color: var(--balance-text);
+
+  font-size: 13px;
+
+  line-height: 1.4;
+
+  font-weight: 700;
+
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
+}
+
+.transaction-meta {
+  display: flex;
+
+  align-items: center;
+
+  gap: 7px;
+
+  color: var(--balance-muted);
+
+  font-size: 10px;
+}
+
+.meta-dot {
+  color: var(--balance-gold-light);
+}
+
+/* =========================================================
+   TRANSACTION AMOUNT
+   ========================================================= */
+
+.transaction-amount {
+  display: flex;
+
+  align-items: center;
+
+  gap: 5px;
+
+  min-width: 75px;
+
+  justify-content: flex-end;
+
+  font-size: 15px;
+
+  font-weight: 850;
+}
+
+.transaction-amount.positive {
+  color: var(--balance-green);
+}
+
+.transaction-amount.negative {
+  color: var(--balance-red);
+}
+
+.transaction-amount span {
+  color: var(--balance-gold);
+
+  font-size: 12px;
+}
+
+/* =========================================================
+   EMPTY STATE
+   ========================================================= */
+
+.empty-state {
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  flex-direction: column;
+
+  min-height: 270px;
+
+  padding: 35px;
+
+  text-align: center;
+}
+
+.empty-icon {
+  display: grid;
+
+  place-items: center;
+
+  width: 61px;
+  height: 61px;
+
+  margin-bottom: 17px;
+
+  border: 1px solid rgba(184, 148, 82, 0.18);
+
+  border-radius: 17px;
+
+  color: var(--balance-gold-dark);
+
+  background:
+    linear-gradient(
+      145deg,
+      #ffffff,
+      #f5ead5
+    );
+
+  font-size: 25px;
+
+  box-shadow:
+    0 12px 28px rgba(55, 42, 24, 0.07);
+}
+
+.empty-state h3 {
+  margin: 0;
+
+  color: var(--balance-text);
+
+  font-size: 17px;
+
+  font-weight: 800;
+}
+
+.empty-state p {
+  max-width: 400px;
+
+  margin: 8px 0 0;
+
+  color: var(--balance-text-soft);
+
+  font-size: 12px;
+
+  line-height: 1.65;
+}
+
+/* =========================================================
+   LOADING
+   ========================================================= */
+
+.loading-list {
+  padding: 5px 25px;
+}
+
+.loading-item {
+  display: flex;
+
+  align-items: center;
+
+  gap: 15px;
+
+  min-height: 82px;
+
+  border-bottom: 1px solid rgba(184, 148, 82, 0.075);
+}
+
+.loading-item:last-child {
+  border-bottom: 0;
+}
+
+.loading-circle {
+  width: 43px;
+  height: 43px;
+
+  flex-shrink: 0;
+
+  border-radius: 13px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #f0ece4 25%,
+      #faf8f3 50%,
+      #f0ece4 75%
+    );
+
+  background-size: 200% 100%;
+
+  animation: skeleton 1.4s ease infinite;
+}
+
+.loading-lines {
+  flex: 1;
+}
+
+.loading-lines div:first-child {
+  width: 42%;
+  height: 10px;
+
+  margin-bottom: 8px;
+
+  border-radius: 6px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #f0ece4 25%,
+      #faf8f3 50%,
+      #f0ece4 75%
+    );
+
+  background-size: 200% 100%;
+
+  animation: skeleton 1.4s ease infinite;
+}
+
+.loading-lines div:last-child {
+  width: 25%;
+  height: 7px;
+
+  border-radius: 5px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #f0ece4 25%,
+      #faf8f3 50%,
+      #f0ece4 75%
+    );
+
+  background-size: 200% 100%;
+
+  animation: skeleton 1.4s ease infinite;
+}
+
+.loading-amount {
+  width: 50px;
+  height: 12px;
+
+  border-radius: 6px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #f0ece4 25%,
+      #faf8f3 50%,
+      #f0ece4 75%
+    );
+
+  background-size: 200% 100%;
+
+  animation: skeleton 1.4s ease infinite;
+}
+
+/* =========================================================
+   ANIMATIONS
+   ========================================================= */
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+
+    transform: translateY(15px);
+  }
+
+  to {
+    opacity: 1;
+
+    transform: translateY(0);
+  }
+}
+
+@keyframes heroAppear {
+  from {
+    opacity: 0;
+
+    transform:
+      translateY(20px)
+      scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translateY(0)
+      scale(1);
+  }
+}
+
+/* =========================================================
+   RESPONSIVE — TABLET
+   ========================================================= */
+
+@media (max-width: 900px) {
+  .balance-page {
+    padding: 25px;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .page-header {
+    align-items: flex-start;
+
+    flex-direction: column;
+  }
+
+  .refresh-button {
+    align-self: flex-start;
+  }
+}
+
+/* =========================================================
+   RESPONSIVE — MOBILE
+   ========================================================= */
+
+@media (max-width: 600px) {
+  .balance-page {
+    padding: 17px 14px;
+  }
+
+  .page-header {
+    margin-bottom: 22px;
+  }
+
+  .header-content h1 {
+    font-size: 28px;
+  }
+
+  .header-content p {
+    font-size: 13px;
+  }
+
+  .balance-hero {
+    min-height: 215px;
+
+    padding: 22px;
+
+    border-radius: 20px;
+  }
+
+  .balance-value {
+    font-size: 47px;
+
+    letter-spacing: -2.5px;
+  }
+
+  .coin-text {
+    font-size: 10px;
+  }
+
+  .coin-symbol {
+    width: 54px;
+    height: 54px;
+
+    border-radius: 16px;
+
+    font-size: 24px;
+  }
+
+  .hero-bottom {
+    align-items: flex-start;
+
+    flex-direction: column;
+
+    gap: 10px;
+
+    margin-top: 45px;
+  }
+
+  .student-name {
+    max-width: 100%;
+  }
+
+  .stats-grid {
+    gap: 12px;
+
+    margin-bottom: 22px;
+  }
+
+  .stat-card {
+    min-height: 92px;
+
+    padding: 17px;
+  }
+
+  .section-header {
+    align-items: flex-start;
+
+    flex-direction: column;
+
+    padding: 20px;
+  }
+
+  .transaction {
+    gap: 12px;
+
+    padding: 14px 16px;
+  }
+
+  .transaction:hover {
+    padding-left: 16px;
+  }
+
+  .transaction-info h3 {
+    max-width: 160px;
+  }
+
+  .transaction-amount {
+    min-width: auto;
+
+    font-size: 14px;
+  }
+
+  .loading-list {
+    padding: 5px 16px;
+  }
+}
+
+/* =========================================================
+   SMALL MOBILE
+   ========================================================= */
+
+@media (max-width: 380px) {
+  .balance-page {
+    padding: 14px 10px;
+  }
+
+  .header-content h1 {
+    font-size: 25px;
+  }
+
+  .balance-hero {
+    padding: 19px;
+  }
+
+  .balance-value {
+    font-size: 40px;
+  }
+
+  .coin-symbol {
+    width: 47px;
+    height: 47px;
+
+    border-radius: 14px;
+
+    font-size: 20px;
+  }
+
+  .transaction {
+    padding: 13px;
+  }
+
+  .transaction-icon {
+    width: 39px;
+    height: 39px;
+
+    border-radius: 11px;
+  }
+
+  .transaction-info h3 {
+    max-width: 125px;
+  }
+}
+
+/* =========================================================
+   ACCESSIBILITY
+   ========================================================= */
+
+.refresh-button:focus-visible {
+  outline: 3px solid rgba(184, 148, 82, 0.18);
+
+  outline-offset: 3px;
+}
+
+/* =========================================================
+   REDUCED MOTION
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .balance-page *,
+  .balance-page *::before,
+  .balance-page *::after {
+    animation: none !important;
+
+    transition: none !important;
+  }
+}

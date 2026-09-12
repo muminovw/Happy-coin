@@ -1,6 +1,6 @@
 <script>
   import { createEventDispatcher } from 'svelte';
-  import { supabase } from '../../lib/supabaseClient';
+  import { supabase } from '../../lib/SupabaseClient';
   import { authActions } from '../../stores/auth';
 
   const dispatch = createEventDispatcher();

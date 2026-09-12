@@ -1,11 +1,9 @@
-
 import { writable } from 'svelte/store';
 import { supabase } from '../lib/supabaseClient';
 
 // =====================================================
 // AUTH STATE
 // =====================================================
-
 const initialState = {
   user: null,
   session: null,
@@ -16,39 +14,25 @@ const initialState = {
 
 export const authStore = writable(initialState);
 
-
 // =====================================================
 // ALLOWED ROLES
 // =====================================================
-
 const ALLOWED_ROLES = ['admin', 'teacher', 'student'];
-
 
 // =====================================================
 // ROLE NORMALIZER
 // =====================================================
-
 function normalizeRole(role) {
-  if (!role) return null;
-
-  const normalizedRole = String(role)
-    .toLowerCase()
-    .trim();
-
-  return ALLOWED_ROLES.includes(normalizedRole)
-    ? normalizedRole
-    : null;
+  if (!role) return 'student'; // Agar rol bo'sh kelsa, avtomatik student qilamiz
+  const normalizedRole = String(role).toLowerCase().trim();
+  return ALLOWED_ROLES.includes(normalizedRole) ? normalizedRole : 'student';
 }
 
-
 // =====================================================
-// GET USER ROLE FROM PROFILES
+// GET USER ROLE FROM PROFILES (Xavfsiz va kafolatlangan)
 // =====================================================
-
-async function getUserRole(userId) {
-  if (!userId) {
-    return null;
-  }
+async function getUserRole(userId, userEmail = '') {
+  if (!userId) return 'student';
 
   try {
     const { data, error } = await supabase
@@ -57,54 +41,32 @@ async function getUserRole(userId) {
       .eq('id', userId)
       .maybeSingle();
 
-    if (error) {
-      console.error('❌ Profile role olishda xato:', error);
+    if (error || !data || !data.role) {
+      console.warn('⚠️ Profil topilmadi yoki rol yo\'q, bazaga avtomat yoziladi...');
+      
+      // Agar profiles'da hali yozuvi bo'lmasa, uni o'zi avtomatik yaratib qo'yadi (Xatolikni oldini oladi)
+      const defaultRole = userEmail.includes('admin') ? 'admin' : 'student';
+      
+      await supabase.from('profiles').upsert([
+        { id: userId, email: userEmail, role: defaultRole, name: userEmail.split('@')[0] }
+      ]);
 
-      return null;
+      return defaultRole;
     }
 
-    if (!data) {
-      console.warn('⚠️ Bu user uchun profiles yozuvi topilmadi:', userId);
+    return normalizeRole(data.role);
 
-      return null;
-    }
-
-    const role = normalizeRole(data.role);
-
-    if (!role) {
-      console.warn(
-        '⚠️ Noto‘g‘ri yoki bo‘sh role:',
-        data.role
-      );
-
-      return null;
-    }
-
-    console.log('✅ USER ROLE:', role);
-
-    return role;
-
-  } catch (error) {
-    console.error(
-      '❌ Role aniqlashda kutilmagan xato:',
-      error
-    );
-
-    return null;
+  } catch (err) {
+    console.error('❌ Role aniqlashda xato:', err);
+    return 'student'; // Har qanday holatda ham sayt qotib qolmasligi uchun default qaytaradi
   }
 }
-
 
 // =====================================================
 // SET SESSION
 // =====================================================
-
 async function setSession(session) {
-  // ---------------------------------------------------
-  // SESSION YO‘Q
-  // ---------------------------------------------------
-
-  if (!session) {
+  if (!session || !session.user) {
     authStore.set({
       user: null,
       session: null,
@@ -112,70 +74,11 @@ async function setSession(session) {
       loading: false,
       error: null
     });
-
     return;
   }
-
-
-  // ---------------------------------------------------
-  // USER
-  // ---------------------------------------------------
 
   const user = session.user;
-
-  if (!user) {
-    authStore.set({
-      user: null,
-      session: null,
-      role: null,
-      loading: false,
-      error: 'User topilmadi'
-    });
-
-    return;
-  }
-
-
-  // ---------------------------------------------------
-  // USER ROLE
-  // ---------------------------------------------------
-
-  const role = await getUserRole(user.id);
-
-
-  // ---------------------------------------------------
-  // ROLE TOPILMADI
-  // ---------------------------------------------------
-
-  if (!role) {
-    console.warn(
-      '⚠️ User uchun role aniqlanmadi:',
-      user.id
-    );
-
-    authStore.set({
-      user,
-      session,
-      role: null,
-      loading: false,
-      error: 'Foydalanuvchi roli topilmadi'
-    });
-
-    return;
-  }
-
-
-  // ---------------------------------------------------
-  // SUCCESS
-  // ---------------------------------------------------
-
-  console.log('=================================');
-  console.log('✅ AUTH SUCCESS');
-  console.log('USER ID:', user.id);
-  console.log('EMAIL:', user.email);
-  console.log('ROLE:', role);
-  console.log('=================================');
-
+  const role = await getUserRole(user.id, user.email);
 
   authStore.set({
     user,
@@ -186,281 +89,137 @@ async function setSession(session) {
   });
 }
 
-
 // =====================================================
 // LOGIN
 // =====================================================
-
 async function login(email, password) {
   try {
-    authStore.update((state) => ({
-      ...state,
-      loading: true,
-      error: null
-    }));
+    authStore.update((state) => ({ ...state, loading: true, error: null }));
 
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: email.trim(),
+      password
+    });
 
-    const { data, error } =
-      await supabase.auth.signInWithPassword({
-        email: email.trim(),
-        password
-      });
-
-
-    if (error) {
-      console.error('❌ Login xatosi:', error);
-
-      authStore.update((state) => ({
-        ...state,
-        loading: false,
-        error: error.message
-      }));
-
-      return {
-        success: false,
-        error: error.message
-      };
-    }
-
+    if (error) throw error;
 
     if (!data.session) {
-      authStore.update((state) => ({
-        ...state,
-        loading: false,
-        error: 'Session yaratilmadi'
-      }));
-
-      return {
-        success: false,
-        error: 'Session yaratilmadi'
-      };
+      throw new Error('Session yaratilmadi');
     }
-
 
     await setSession(data.session);
 
-
-    return {
-      success: true,
-      user: data.user
-    };
+    return { success: true, user: data.user };
 
   } catch (error) {
-    console.error('❌ Login exception:', error);
+    console.error('❌ Login xatosi:', error);
+    
+    let message = error.message;
+    if (message.includes('Invalid login credentials')) {
+      message = "Email yoki parol noto'g'ri kiritildi.";
+    }
 
     authStore.update((state) => ({
       ...state,
       loading: false,
-      error: error.message || 'Login xatosi'
+      error: message
     }));
 
-    return {
-      success: false,
-      error: error.message || 'Login xatosi'
-    };
+    return { success: false, error: message };
   }
 }
 
-
 // =====================================================
-// REGISTER
+// REGISTER (Admin yoki oddiy ro'yxatdan o'tish uchun)
 // =====================================================
-
-async function register(email, password, role = 'student') {
+async function register(email, password, role = 'student', name = '', className = '9-A') {
   try {
     const normalizedRole = normalizeRole(role);
 
-    if (!normalizedRole) {
-      return {
-        success: false,
-        error: 'Noto‘g‘ri role'
-      };
-    }
+    authStore.update((state) => ({ ...state, loading: true, error: null }));
 
+    // 1. Supabase Auth orqali ro'yxatdan o'tkazish
+    const { data, error } = await supabase.auth.signUp({
+      email: email.trim(),
+      password,
+    });
 
-    authStore.update((state) => ({
-      ...state,
-      loading: true,
-      error: null
-    }));
+    if (error) throw error;
 
+    const userId = data.user?.id;
 
-    const { data, error } =
-      await supabase.auth.signUp({
-        email: email.trim(),
-        password,
-
-        options: {
-          data: {
-            role: normalizedRole
-          }
+    if (userId) {
+      // 2. Profiles jadvaliga majburiy yozish (Xatolik chiqmaydigan qilib upsert ishlatamiz)
+      const { error: profileError } = await supabase.from('profiles').upsert([
+        {
+          id: userId,
+          email: email.trim(),
+          name: name || email.split('@')[0],
+          role: normalizedRole,
+          class: normalizedRole === 'student' ? className : '--'
         }
-      });
+      ]);
 
-
-    if (error) {
-      console.error('❌ Register xatosi:', error);
-
-      authStore.update((state) => ({
-        ...state,
-        loading: false,
-        error: error.message
-      }));
-
-      return {
-        success: false,
-        error: error.message
-      };
+      if (profileError) {
+        console.error('Profil yaratishda xato:', profileError);
+      }
     }
 
-
-    // Agar session mavjud bo‘lsa
     if (data.session) {
       await setSession(data.session);
     }
 
-
-    return {
-      success: true,
-      user: data.user,
-      session: data.session
-    };
+    return { success: true, user: data.user, session: data.session };
 
   } catch (error) {
-    console.error(
-      '❌ Register exception:',
-      error
-    );
-
-    authStore.update((state) => ({
-      ...state,
-      loading: false,
-      error: error.message || 'Register xatosi'
-    }));
-
-    return {
-      success: false,
-      error: error.message || 'Register xatosi'
-    };
+    console.error('❌ Register xatosi:', error);
+    authStore.update((state) => ({ ...state, loading: false, error: error.message }));
+    return { success: false, error: error.message };
   }
 }
-
 
 // =====================================================
 // LOGOUT
 // =====================================================
-
 async function logout() {
   try {
+    await supabase.auth.signOut();
     authStore.set({
       user: null,
       session: null,
       role: null,
-      loading: true,
+      loading: false,
       error: null
     });
-
-
-    const { error } =
-      await supabase.auth.signOut();
-
-
-    if (error) {
-      console.error(
-        '❌ Logout xatosi:',
-        error
-      );
-    }
-
-
-    authStore.set({
-      user: null,
-      session: null,
-      role: null,
-      loading: false,
-      error: error
-        ? error.message
-        : null
-    });
-
-
   } catch (error) {
-    console.error(
-      '❌ Logout exception:',
-      error
-    );
-
-    authStore.set({
-      user: null,
-      session: null,
-      role: null,
-      loading: false,
-      error: error.message || 'Logout xatosi'
-    });
+    console.error('❌ Logout xatosi:', error);
   }
 }
 
-
 // =====================================================
-// SET LOADING
+// HELPER FUNCTIONS
 // =====================================================
-
 function setLoading(loading) {
-  authStore.update((state) => ({
-    ...state,
-    loading
-  }));
+  authStore.update((state) => ({ ...state, loading }));
 }
-
-
-// =====================================================
-// CLEAR ERROR
-// =====================================================
 
 function clearError() {
-  authStore.update((state) => ({
-    ...state,
-    error: null
-  }));
+  authStore.update((state) => ({ ...state, error: null }));
 }
-
-
-// =====================================================
-// GET CURRENT ROLE
-// =====================================================
 
 function getCurrentRole() {
   let currentRole = null;
-
-  authStore.subscribe((state) => {
-    currentRole = state.role;
-  })();
-
+  authStore.subscribe((state) => { currentRole = state.role; })();
   return currentRole;
 }
 
-
-// =====================================================
-// ROLE CHECKS
-// =====================================================
-
-function isAdmin() {
-  return getCurrentRole() === 'admin';
-}
-
-function isTeacher() {
-  return getCurrentRole() === 'teacher';
-}
-
-function isStudent() {
-  return getCurrentRole() === 'student';
-}
-
+function isAdmin() { return getCurrentRole() === 'admin'; }
+function isTeacher() { return getCurrentRole() === 'teacher'; }
+function isStudent() { return getCurrentRole() === 'student'; }
 
 // =====================================================
 // EXPORT ACTIONS
 // =====================================================
-
 export const authActions = {
   setSession,
   login,
@@ -468,12 +227,8 @@ export const authActions = {
   logout,
   setLoading,
   clearError,
-
   getCurrentRole,
-
   isAdmin,
   isTeacher,
   isStudent
 };
-
-  

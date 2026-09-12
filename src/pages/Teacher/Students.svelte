@@ -1,40 +1,70 @@
 <script>
-  import { onMount } from 'svelte';
+  import { onMount, onDestroy } from 'svelte';
   import { supabase } from '../../lib/SupabaseClient';
 
   let students = [];
   let searchQuery = '';
   let loading = true;
   let errorMessage = '';
+  let channel = null;
 
   // Supabase'dan faqat studentlarni olish
   async function loadStudents() {
-    loading = true;
-    errorMessage = '';
+    try {
+      loading = true;
+      errorMessage = '';
 
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('role', 'student')
-      .order('created_at', { ascending: false });
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('role', 'student')
+        .order('created_at', { ascending: false });
 
-    if (error) {
-      console.error('O‘quvchilarni olishda xato:', error);
+      if (error) throw error;
+      students = data || [];
+    } catch (err) {
+      console.error('O‘quvchilarni olishda xato:', err);
       errorMessage = 'O‘quvchilarni yuklashda xatolik yuz berdi.';
       students = [];
-    } else {
-      students = data || [];
+    } finally {
+      loading = false;
     }
-
-    loading = false;
   }
 
-  // Qidiruv
+  // Real-time o'zgarishlarni kuzatish uchun obuna
+  function setupRealtime() {
+    channel = supabase
+      .channel('public:profiles_students_page')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'profiles' },
+        async (payload) => {
+          console.ProfileChange('Real-time o‘zgarish aniqlandi:', payload);
+          // Har qanday o'zgarishda ro'yxatni avtomatik yangilash eng xavfsiz yo'l
+          await loadStudents();
+        }
+      )
+      .subscribe((status) => {
+        console.log('Real-timestatus:', status);
+      });
+  }
+
+  onMount(async () => {
+    await loadStudents();
+    setupRealtime();
+  });
+
+  onDestroy(() => {
+    if (channel) {
+      supabase.removeChannel(channel);
+    }
+  });
+
+  // Qidiruv filtri
   $: filteredStudents = students.filter((student) => {
     const name = student.name || '';
     const studentClass = student.class || '';
     const email = student.email || '';
-
     const query = searchQuery.toLowerCase();
 
     return (
@@ -42,72 +72,6 @@
       studentClass.toLowerCase().includes(query) ||
       email.toLowerCase().includes(query)
     );
-  });
-
-  onMount(() => {
-    loadStudents();
-
-    // Yangi student qo‘shilsa avtomatik chiqarish
-    const channel = supabase
-      .channel('students-realtime')
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'profiles'
-        },
-        (payload) => {
-          // Faqat studentlarni qo‘shamiz
-          if (payload.new.role === 'student') {
-            students = [payload.new, ...students];
-          }
-        }
-      )
-      .subscribe();
-
-    // Student o‘zgartirilsa
-    channel.on(
-      'postgres_changes',
-      {
-        event: 'UPDATE',
-        schema: 'public',
-        table: 'profiles'
-      },
-      (payload) => {
-        if (payload.new.role === 'student') {
-          students = students.map((student) =>
-            student.id === payload.new.id
-              ? payload.new
-              : student
-          );
-        } else {
-          // Agar student roli olib tashlansa
-          students = students.filter(
-            (student) => student.id !== payload.new.id
-          );
-        }
-      }
-    );
-
-    // Student o‘chirilsa
-    channel.on(
-      'postgres_changes',
-      {
-        event: 'DELETE',
-        schema: 'public',
-        table: 'profiles'
-      },
-      (payload) => {
-        students = students.filter(
-          (student) => student.id !== payload.old.id
-        );
-      }
-    );
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
   });
 </script>
 
@@ -131,28 +95,22 @@
   </div>
 
   {#if loading}
-
     <div class="state-box">
       <div class="loader"></div>
       <p>O‘quvchilar yuklanmoqda...</p>
     </div>
 
   {:else if errorMessage}
-
     <div class="state-box error">
       <p>{errorMessage}</p>
-
       <button on:click={loadStudents}>
         Qayta yuklash
       </button>
     </div>
 
   {:else}
-
     <div class="table-container">
-
       <table>
-
         <thead>
           <tr>
             <th>F.I.O</th>
@@ -161,43 +119,30 @@
             <th>Balans (Coin)</th>
           </tr>
         </thead>
-
         <tbody>
-
-          {#each filteredStudents as student}
-
+          {#each filteredStudents as student (student.id)}
             <tr>
-
               <td class="student-name">
-
                 <div class="avatar">
                   {(student.name || 'U').charAt(0).toUpperCase()}
                 </div>
-
                 <span>
                   {student.name || 'Nomaʼlum'}
                 </span>
-
               </td>
-
               <td>
                 {student.class || '—'}
               </td>
-
               <td class="email-col">
                 {student.email || '—'}
               </td>
-
               <td>
                 <span class="coin-pill">
                   🪙 {student.coins ?? 0} coin
                 </span>
               </td>
-
             </tr>
-
           {:else}
-
             <tr>
               <td colspan="4" class="no-data">
                 {#if searchQuery}
@@ -207,15 +152,10 @@
                 {/if}
               </td>
             </tr>
-
           {/each}
-
         </tbody>
-
       </table>
-
     </div>
-
   {/if}
 
 </div>
@@ -224,6 +164,8 @@
   .students-container {
     font-family: Inter, Arial, sans-serif;
     color: #f8fafc;
+    max-width: 1200px;
+    margin: 0 auto;
   }
 
   .header-section {

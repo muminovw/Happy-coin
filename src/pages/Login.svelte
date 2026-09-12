@@ -1,7 +1,8 @@
 <script>
   import { createEventDispatcher } from 'svelte';
-  import { supabase } from '../lib/supabaseClient'; // O'z papkangiz yo'liga qarab tekshiring
-  import "./Login.css"
+  import { supabase } from '../lib/SupabaseClient'; // Yo'lni o'zingizning papkangizga moslang
+  import './Login.css';
+
   const dispatch = createEventDispatcher();
 
   let email = '';
@@ -15,30 +16,55 @@
     errorMessage = '';
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      // 1. Supabase Auth orqali tizimga kirish
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
         email,
         password
       });
 
-      if (error) throw error;
+      if (authError) throw authError;
 
-      // Muvaffaqiyatli kirilgach, App.svelte o'zi avtomatik Dashboard'ga o'tkazadi
+      const user = authData.user;
+      if (!user) throw new Error("Foydalanuvchi ma'lumotlari topilmadi.");
+
+      // 2. profiles jadvalidan foydalanuvchining rolini tekshirib olish
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('role, name')
+        .eq('id', user.id)
+        .single();
+
+      if (profileError) {
+        console.warn("Profil topilmadi, standart holatda davom etiladi:", profileError.message);
+      }
+
+      // Muvaffaqiyatli kirildi. 
+      // App.svelte yoki ota komponent onAuthStateChange yoki event orqali buni sezib avtomatik yo'naltiradi.
+      // Agar kerak bo'lsa, rol haqida ma'lumotni event orqali uzatish ham mumkin:
+      dispatch('loginSuccess', { user, profile: profileData });
+
     } catch (error) {
-      errorMessage = error.message || "Email yoki parol xato kiritildi.";
+      console.error('Kirish xatosi:', error);
+      // Xatolik xabarlarini tushunarliroq qilish
+      if (error.message.includes('Invalid login credentials')) {
+        errorMessage = "Email yoki parol noto'g'ri kiritildi.";
+      } else {
+        errorMessage = error.message || "Tizimga kirishda xatolik yuz berdi.";
+      }
     } finally {
       loading = false;
     }
   }
 
   function goToRegister() {
-    dispatch('switchToRegister'); // App.svelte'dagi register oynasini ochish uchun
+    dispatch('switchToRegister'); // Ro'yxatdan o'tish oynasiga o'tish uchun
   }
 </script>
 
 <div class="login-container">
   <div class="login-card">
-    <h2>Tizimga Kirish</h2>
-    <p class="subtitle">Iltimos, akkauntingizga kiring</p>
+    <h2>Tizimga Kirish 🚀</h2>
+    <p class="subtitle">O'quv boshqaruv portaliga xush kelibsiz</p>
 
     {#if errorMessage}
       <div class="alert error">{errorMessage}</div>
@@ -68,7 +94,7 @@
       </div>
 
       <button type="submit" class="submit-btn" disabled={loading}>
-        {loading ? "Kirilmoqda..." : "Kirish"}
+        {loading ? "Tekshirilmoqda..." : "Kirish"}
       </button>
     </form>
 
@@ -77,4 +103,3 @@
     </div>
   </div>
 </div>
-

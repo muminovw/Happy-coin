@@ -98,7 +98,7 @@
   {#if loading}
     <div class="state-box">
       <div class="loader"></div>
-      <p>O‘quvchilar yuklanmoqda...</p>
+      <p>O‘quvchilar yuklanmoqda....</p>
     </div>
 
   {:else if errorMessage}

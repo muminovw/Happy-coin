@@ -78,7 +78,7 @@
 <div class="admin-dashboard">
   <div class="header-section">
     <h1>Admin Boshqaruv Paneli</h1>
-    <p>Tizimdagi umumiy statistika va so'nggi jarayonlarni kuzatib boring</p>
+    <p>Tizimdagi umumiy statistika va so'nggi jarayonlarni kuzatib boring.</p>
   </div>
 
   <!-- Statistika kartochkalari -->

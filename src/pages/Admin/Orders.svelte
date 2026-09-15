@@ -1,7 +1,7 @@
 <script>
   import { onMount, onDestroy } from 'svelte';
   import { supabase } from '../../lib/SupabaseClient';
-  import './Orders.css'
+  import './Orders.css';
 
   let orders = [];
   let loading = true;
@@ -18,54 +18,48 @@
     }
   });
 
-  // Buyurtmalarni bazadan tortib kelish
+  // Buyurtmalarni profiles va products jadvallari bilan xatolarsiz bog'lab tortib kelish
   async function fetchOrders() {
     try {
       loading = true;
       const { data, error } = await supabase
         .from('orders')
         .select(`
-          *,
-          profiles (full_name, email),
-          products (title, price)
+          id,
+          total_price,
+          status,
+          created_at,
+          student_id,
+          profiles (id, name, email),
+          products (name, price)
         `)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
       orders = data || [];
     } catch (err) {
-      console.error('Buyurtmalarni yuklashda xatolik:', err);
+      console.error('Buyurtmalarni yuklashda xatolik:', err.message);
     } finally {
       loading = false;
     }
   }
 
-  // Realtime tinglovchi: O'quvchi yangi buyurtma berganda sahifani avtomatik yangilaydi
+  // Realtime: O'quvchi xarid qilganda admin panelini avtomatik yangilash
   function setupRealtimeSubscription() {
     channel = supabase
-      .channel('public:orders')
+      .channel('public:orders_professional_sync')
       .on(
         'postgres_changes',
-        {
-          event: '*', // INSERT, UPDATE, DELETE barchasini kuzatish
-          schema: 'public',
-          table: 'orders'
-        },
+        { event: '*', schema: 'public', table: 'orders' },
         async (payload) => {
-          console.log('Realtime o\'zgarish aniqlandi:', payload);
-          // Har qanday o'zgarishda ma'lumotlarni qaytadan to'liq tortib kelamiz (bog'langan jadvallar uchun)
+          console.log('Realtime buyurtma o\'zgarishi:', payload);
           await fetchOrders();
-          
-          if (payload.eventType === 'INSERT') {
-            // Qo'shimcha bildirishnoma chiqarish mumkin
-            console.log('Yangi buyurtma qabul qilindi!');
-          }
         }
       )
       .subscribe();
   }
 
-  // Buyurtma holatini o'zgartirish (tasdiqlash yoki rad etish)
+  // Buyurtma holatini yangilash (Tasdiqlash / Rad etish)
   async function updateOrderStatus(orderId, newStatus) {
     try {
       const { error } = await supabase
@@ -75,10 +69,14 @@
 
       if (error) throw error;
 
-      alert('Buyurtma holati yangilandi!');
-      await fetchOrders();
+      // Interfeysni tezkor yangilash
+      orders = orders.map(ord => 
+        ord.id === orderId ? { ...ord, status: newStatus } : ord
+      );
+
+      alert(`Buyurtma muvaffaqiyatli ${newStatus === 'approved' ? 'tasdiqlandi' : 'rad etildi'}!`);
     } catch (err) {
-      console.error('Xatolik:', err);
+      console.error('Holatni o\'zgartirishda xatolik:', err);
       alert(`Xatolik yuz berdi: ${err.message}`);
     }
   }
@@ -114,22 +112,33 @@
         {:else}
           {#each orders as order (order.id)}
             <tr>
+              <!-- O'quvchi ma'lumotlari -->
               <td>
                 <div class="user-info">
-                  <strong>{order.profiles?.full_name || 'Nomaʼlum'}</strong>
-                  <span>{order.profiles?.email || ''}</span>
+                  <strong>{order.profiles?.name || 'Nomaʼlum o\'quvchi'}</strong>
+                  <span>{order.profiles?.email || 'Email ko\'rsatilmagan'}</span>
                 </div>
               </td>
-              <td>{order.products?.title || 'Mahsulot o\'chirilgan'}</td>
+
+              <!-- Mahsulot nomi -->
+              <td>{order.products?.name || 'Mahsulot o\'chirilgan'}</td>
+
+              <!-- Narxi -->
               <td>
                 <span class="coin-badge">🪙 {order.total_price || order.products?.price || 0} coin</span>
               </td>
+
+              <!-- Holati badge -->
               <td>
                 <span class="status-badge {order.status}">
                   {order.status === 'pending' ? 'Kutilmoqda' : order.status === 'approved' ? 'Tasdiqlangan' : 'Rad etilgan'}
                 </span>
               </td>
-              <td class="date-col">{new Date(order.created_at).toLocaleDateString()}</td>
+
+              <!-- Sana -->
+              <td class="date-col">{new Date(order.created_at).toLocaleString()}</td>
+
+              <!-- Amallar -->
               <td>
                 {#if order.status === 'pending'}
                   <div class="action-buttons">
@@ -151,4 +160,3 @@
     </table>
   </div>
 </div>
-

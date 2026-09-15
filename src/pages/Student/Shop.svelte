@@ -24,7 +24,7 @@
     }
   });
 
-  // 1. O'quvchining balansini tranzaksiyalardan hisoblash
+  // O'quvchining balansini hisoblash
   async function fetchStudentData() {
     try {
       const { data: { user }, error: authError } = await supabase.auth.getUser();
@@ -39,22 +39,18 @@
         .select('amount')
         .eq('student_id', currentUser.id);
 
-      if (error) {
-        console.error('Balansni yuklashda xatolik:', error);
-        errorMessage = "Balansni yuklashda xatolik: " + error.message;
-        return;
-      }
+      if (error) throw error;
 
       if (data) {
         myCoins = data.reduce((acc, tx) => acc + (Number(tx.amount) || 0), 0);
       }
     } catch (err) {
-      console.error('Kutilmagan xatolik:', err);
-      errorMessage = 'Kutilmagan xatolik yuz berdi.';
+      console.error('Balansni yuklashda xatolik:', err);
+      errorMessage = 'Balansni yuklab bo\'lmadi.';
     }
   }
 
-  // 2. Do'kon mahsulotlarini Supabase bazasidan tortib kelish
+  // Mahsulotlarni olish
   async function fetchShopItems() {
     loading = true;
     try {
@@ -66,14 +62,14 @@
       if (error) throw error;
       shopItems = data || [];
     } catch (err) {
-      console.error('Mahsulotlarni olishda xatolik:', err.message);
+      console.error('Mahsulotlarni olishda xatolik:', err);
       errorMessage = 'Mahsulotlarni yuklab bo\'lmadi.';
     } finally {
       loading = false;
     }
   }
 
-  // Realtime: Admin yangi mahsulot qo'shsa yoki o'chirsa o'quvchida avtomatik yangilanishi
+  // Realtime: Mahsulotlar o'zgarsa avtomatik yangilash
   function setupRealtimeSubscription() {
     channel = supabase
       .channel('public:shop_products_sync')
@@ -87,7 +83,7 @@
       .subscribe();
   }
 
-  // 3. Xarid qilish funksiyasi
+  // Xarid qilish va Buyurtmalarga yozish
   async function handleBuyItem(item) {
     successMessage = '';
     errorMessage = '';
@@ -98,12 +94,12 @@
     }
 
     if (myCoins < item.price) {
-      errorMessage = `Afsuski, "${item.name}" uchun coinlaringiz yetarli emas!`;
+      errorMessage = `Afsuski, "${item.title || item.name}" uchun coinlaringiz yetarli emas!`;
       return;
     }
 
     if (item.stock <= 0) {
-      errorMessage = `Kechirasiz, "${item.name}" tugagan!`;
+      errorMessage = `Kechirasiz, "${item.title || item.name}" tugagan!`;
       return;
     }
 
@@ -115,33 +111,40 @@
         {
           student_id: currentUser.id,
           amount: -item.price,
-          reason: `Xarid: ${item.name}`,
+          reason: `Xarid: ${item.title || item.name}`,
           type: 'shop_purchase'
         }
       ]);
-
       if (txError) throw txError;
 
-      // 2. Products jadvalidan qoldiqni (stock) 1 taga kamaytirish
+      // 2. Mahsulot qoldig'ini (stock) kamaytirish
       const newStock = item.stock - 1;
       const { error: updateError } = await supabase
         .from('products')
         .update({ stock: newStock })
         .eq('id', item.id);
-
       if (updateError) throw updateError;
 
-      // Muvaffaqiyatli yakunlash
-      myCoins -= item.price;
-      item.stock = newStock; // Ekranda darhol kamayib ko'rinishi uchun
-      successMessage = `Tabriklaymiz! "${item.name}" muvaffaqiyatli sotib olindi.`;
-      
-      // Bazadagi o'zgarishni to'liq sinxronlash uchun
-      await fetchShopItems();
+      // 3. ORDERS (Buyurtmalar) jadvaliga yozish (Admin ko'rishi uchun)
+      const { error: orderError } = await supabase.from('orders').insert([
+        {
+          student_id: currentUser.id, // Qaysi o'quvchi xarid qilgani
+          product_id: item.id,       // Qaysi mahsulot
+          total_price: item.price,   // Narxi
+          status: 'pending'          // Kutilmoqda holati
+        }
+      ]);
+      if (orderError) throw orderError;
 
+      // Natijani yangilash
+      myCoins -= item.price;
+      item.stock = newStock;
+      successMessage = `Tabriklaymiz! "${item.title || item.name}" muvaffaqiyatli sotib olindi va adminga yuborildi.`;
+      
+      await fetchShopItems();
     } catch (err) {
-      console.error('Xarid qilishda xatolik tafsiloti:', err);
-      errorMessage = 'Xarid qilishda xatolik: ' + (err.message || JSON.stringify(err));
+      console.error('Xarid qilishda xatolik:', err);
+      errorMessage = 'Xarid qilishda xatolik yuz berdi: ' + err.message;
     } finally {
       actionLoading = false;
     }
@@ -151,23 +154,17 @@
 <div class="shop-container">
   <div class="header-section">
     <div>
-      <h2>Coin Do'koni (Shop)</h2>
-      <p class="subtitle">To'plagan coinlaringizga kerakli sovg'alar va buyumlarni xarid qiling</p>
+      <h2>Coin Do'koni</h2>
+      <p class="subtitle">To'plagan coinlaringizga sovg'alar xarid qiling</p>
     </div>
-
     <div class="balance-card">
       <span>Mening balansim:</span>
       <strong>🪙 {myCoins} coin</strong>
     </div>
   </div>
 
-  {#if successMessage}
-    <div class="alert success">{successMessage}</div>
-  {/if}
-
-  {#if errorMessage}
-    <div class="alert error">{errorMessage}</div>
-  {/if}
+  {#if successMessage}<div class="alert success">{successMessage}</div>{/if}
+  {#if errorMessage}<div class="alert error">{errorMessage}</div>{/if}
 
   {#if loading}
     <div class="loading-state">Mahsulotlar yuklanmoqda...</div>
@@ -177,10 +174,9 @@
     <div class="items-grid">
       {#each shopItems as item (item.id)}
         <div class="item-card">
-          <div class="item-icon">{item.icon || '🎁'}</div>
-          <h3>{item.name}</h3>
+          <div class="item-icon">🎁</div>
+          <h3>{item.title || item.name}</h3>
           <p class="stock-info">Qoldi: {item.stock} dona</p>
-          
           <div class="card-footer">
             <span class="price-tag">🪙 {item.price} coin</span>
             <button 

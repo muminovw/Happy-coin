@@ -30,13 +30,9 @@
   }
 </script>
 
-
 <div class="layout-container">
 
-  <!-- =====================================================
-       MOBILE OVERLAY
-       ===================================================== -->
-
+  <!-- MOBILE OVERLAY -->
   {#if sidebarOpen}
     <button
       class="sidebar-overlay"
@@ -46,10 +42,7 @@
   {/if}
 
 
-  <!-- =====================================================
-       SIDEBAR
-       ===================================================== -->
-
+  <!-- SIDEBAR -->
   <aside class:sidebar-open={sidebarOpen} class="sidebar">
 
     <!-- Sidebar Header -->
@@ -115,10 +108,7 @@
   </aside>
 
 
-  <!-- =====================================================
-       MAIN CONTENT
-       ===================================================== -->
-
+  <!-- MAIN CONTENT -->
   <main class="main-content">
 
     <!-- Top Navbar -->
@@ -155,3 +145,4 @@
   </main>
 
 </div>
+```

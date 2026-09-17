@@ -1,34 +1,60 @@
 <script>
   import { onMount } from 'svelte';
-  // Loyihangizdagi Supabase client yo'lini o'zingiznikiga moslang (masalan: import { supabase } from '$lib/supabase' )
   import { supabase } from '$lib/supabaseClient'; 
 
   let loading = true;
   let searchQuery = '';
   let leaders = [];
 
-  // Supabase dan o'quvchilar reytingini olish
+  // Jadvallarni alohida va xavfsiz tarzda tortib olib, JS da birlashtiramiz
   async function fetchLeaderboard() {
     try {
       loading = true;
       
-      // 'students' jadvalidan coinlari bo'yicha kamayish tartibida olamiz
-      // Eslatma: Bazadagi jadvalustunlari nomlari (name, group_name, coins) o'zingiznikiga mos bo'lishi kerak
-      const { data, error } = await supabase
-        .from('students')
-        .select('*')
-        .order('coins', { ascending: false });
+      // 1. Hamma kerakli jadvallarni parallel ravishda so'raymiz
+      const [studentsRes, groupsRes, walletsRes] = await Promise.all([
+        supabase.from('students').select('*'),
+        supabase.from('groups').select('*'),
+        supabase.from('wallets').select('*')
+      ]);
 
-      if (error) throw error;
+      if (studentsRes.error) throw studentsRes.error;
 
-      // Ma'lumotlarni tartib raqami (rank) va avatar bilan boyitamiz
-      leaders = (data || []).map((user, index) => ({
-        id: user.id || index,
-        rank: index + 1,
-        name: user.name || "Noma'lum",
-        group: user.group_name || "Guruh yo'q",
-        coins: user.coins || 0,
-        avatar: getInitials(user.name || "User")
+      const students = studentsRes.data || [];
+      const groupsMap = new Map((groupsRes.data || []).map(g => [g.id, g.name]));
+      
+      // Wallets ma'lumotlarini xaritaga (Map) o'tkazamiz
+      const walletsMap = new Map();
+      (walletsRes.data || []).forEach(w => {
+        // Qaysi ustun orqali bog'langanini tekshiramiz
+        const studentId = w.student_id || w.user_id || w.id;
+        // Balans ustuni qanday nomlangan bo'lsa ham topib olamiz (coins, balance, coin, amount)
+        const coinVal = w.coins ?? w.balance ?? w.coin ?? w.amount ?? 0;
+        walletsMap.set(studentId, coinVal);
+      });
+
+      // 2. Ma'lumotlarni o'quvchi bo'yicha birlashtiramiz
+      let formattedData = students.map(student => {
+        const groupName = groupsMap.get(student.group_id) || student.group_name || "Guruh yo'q";
+        
+        // Hamyondan yoki student jadvalidan coin qiymatini qidiramiz
+        const studentCoins = walletsMap.get(student.id) ?? student.coins ?? student.balance ?? student.coin ?? 0;
+
+        return {
+          id: student.id,
+          name: student.name || "Noma'lum",
+          group: groupName,
+          coins: Number(studentCoins) || 0,
+          avatar: getInitials(student.name || "User")
+        };
+      });
+
+      // 3. Coinlar bo'yicha kamayish tartibida saralaymiz
+      formattedData.sort((a, b) => b.coins - a.coins);
+
+      leaders = formattedData.map((user, index) => ({
+        ...user,
+        rank: index + 1
       }));
 
     } catch (error) {
@@ -38,7 +64,7 @@
     }
   }
 
-  // Ismdan bosh harflarni yasash (Avatar uchun, masalan: "Jasurbek Anvarov" -> "JA")
+  // Ismdan avatar uchun bosh harflarni yasash (masalan: "Jasurbek Anvarov" -> "JA")
   function getInitials(fullName) {
     return fullName
       .split(' ')
@@ -51,16 +77,16 @@
   onMount(() => {
     fetchLeaderboard();
 
-    // Real-time (Jonli yangilanish): Kimdir coin olsa jadval avtomatik o'zgaradi
-    const subscription = supabase
-      .channel('public:students')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'students' }, () => {
+    // Jonli yangilanish uchun har uchala jadvalni kuzatamiz
+    const sub = supabase
+      .channel('public-db-changes')
+      .on('postgres_changes', { event: '*', schema: 'public' }, () => {
         fetchLeaderboard();
       })
       .subscribe();
 
     return () => {
-      supabase.removeChannel(subscription);
+      supabase.removeChannel(sub);
     };
   });
 
@@ -96,7 +122,7 @@
     <!-- Top 3 Podium Cards -->
     {#if searchQuery === '' && topThree.length > 0}
       <div class="podium-grid">
-        {#each topThree as leader}
+        {#each topThree as leader (leader.id)}
           <div class="podium-card rank-{leader.rank}">
             <div class="rank-badge">
               {#if leader.rank === 1} 🥇 
@@ -129,7 +155,7 @@
             </tr>
           </thead>
           <tbody>
-            {#each (searchQuery === '' ? restLeaders : filteredLeaders) as row}
+            {#each (searchQuery === '' ? restLeaders : filteredLeaders) as row (row.id)}
               <tr>
                 <td class="rank-col">#{row.rank}</td>
                 <td>
@@ -141,7 +167,6 @@
                 <td><span class="group-badge">{row.group}</span></td>
                 <td><span class="coin-badge">🪙 {row.coins} coin</span></td>
               </tr>
-            {:key row.id}
             {:else}
               <tr>
                 <td colspan="4" class="empty-state">Hech qanday natija topilmadi</td>

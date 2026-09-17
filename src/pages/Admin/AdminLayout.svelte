@@ -33,6 +33,11 @@
       name: "Users",
       label: "Foydalanuvchilar",
       icon: "users"
+    },
+    {
+      name: "Quizzes",
+      label: "Kunlik Quizlar",
+      icon: "quizzes"
     }
   ];
 
@@ -135,6 +140,12 @@
                   <path d="M3 20c0-3.2 2.5-5 6-5s6 1.8 6 5"></path>
                   <circle cx="17" cy="9" r="2.3"></circle>
                   <path d="M16 15c2.8.2 4.5 1.8 4.5 4"></path>
+                </svg>
+
+              {:else if item.icon === "quizzes"}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96-.44l-.04-.56a2.5 2.5 0 0 0-2.5-2.5H4v-11h.5a2.5 2.5 0 0 0 2.5-2.5V4.5A2.5 2.5 0 0 1 9.5 2z"></path>
+                  <path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96-.44l.04-.56a2.5 2.5 0 0 1 2.5-2.5H20v-11h-.5a2.5 2.5 0 0 1-2.5-2.5V4.5A2.5 2.5 0 0 0 14.5 2z"></path>
                 </svg>
               {/if}
 

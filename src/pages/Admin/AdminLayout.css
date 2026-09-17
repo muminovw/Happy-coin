@@ -1,1255 +1,713 @@
 /* =========================================================
-   COINEDU ADMIN LAYOUT
-   PREMIUM / RESPONSIVE / NO PAGE SCROLL
+   COINEDU ADMIN LAYOUT (FIXED RESPONSIVE & MOBILE SIDEBAR)
 ========================================================= */
 
-
-/* =========================================================
-   GLOBAL
-========================================================= */
-
-:global(*) {
-  box-sizing: border-box;
+.admin-layout *,
+.admin-layout *::before,
+.admin-layout *::after {
+    box-sizing: border-box;
 }
-
-:global(html),
-:global(body),
-:global(#app) {
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  padding: 0;
-}
-
-:global(html),
-:global(body) {
-  overflow: hidden !important;
-}
-
-:global(body) {
-  font-family:
-    Inter,
-    "Segoe UI",
-    Arial,
-    sans-serif;
-
-  background: #f6f8f7;
-  color: #14201c;
-}
-
-
-/* =========================================================
-   ROOT LAYOUT
-========================================================= */
 
 .admin-layout {
-
-  --sidebar-width: 272px;
-
-  position: relative;
-
-  width: 100%;
-  height: 100vh;
-  height: 100dvh;
-
-  display: flex;
-
-  overflow: hidden !important;
-
-  background:
-    radial-gradient(
-      circle at 85% 5%,
-      rgba(226, 180, 61, 0.08),
-      transparent 28%
-    ),
-    #f6f8f7;
+    --sidebar-width: 272px;
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    height: 100dvh;
+    display: flex;
+    overflow: hidden !important;
+    font-family: Inter, "Segoe UI", Arial, sans-serif;
+    background: 
+        radial-gradient(circle at 85% 5%, rgba(226, 180, 61, 0.08), transparent 28%),
+        #f6f8f7;
+    color: #14201c;
 }
-
 
 /* =========================================================
    SIDEBAR
 ========================================================= */
 
-.sidebar {
-
-  position: fixed;
-
-  left: 0;
-  top: 0;
-  bottom: 0;
-
-  width: var(--sidebar-width);
-
-  z-index: 1000;
-
-  background:
-    linear-gradient(
-      180deg,
-      #ffffff 0%,
-      #fffdf8 52%,
-      #f9fcfa 100%
-    );
-
-  border-right: 1px solid #e8ece9;
-
-  box-shadow:
-    8px 0 30px rgba(21, 45, 36, 0.055);
-
-  transition:
-    width 0.28s cubic-bezier(.4,0,.2,1);
-
-  overflow: visible;
+.admin-layout .sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: var(--sidebar-width);
+    z-index: 1000;
+    background: linear-gradient(180deg, #ffffff 0%, #fffdf8 52%, #f9fcfa 100%);
+    border-right: 1px solid #e8ece9;
+    box-shadow: 8px 0 30px rgba(21, 45, 36, 0.055);
+    transition: width 0.28s cubic-bezier(0.4, 0, 0.2, 1), transform 0.28s ease;
+    overflow: visible;
 }
 
+.admin-layout .sidebar-inner {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding: 0 15px;
+}
 
 /* =========================================================
-   SIDEBAR INNER
+   BRAND & COIN LOGO
 ========================================================= */
 
-.sidebar-inner {
-
-  width: 100%;
-  height: 100%;
-
-  display: flex;
-  flex-direction: column;
-
-  overflow: hidden;
-
-  padding: 0 15px;
+.admin-layout .sidebar-brand {
+    height: 105px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    padding: 20px 8px;
+    border-bottom: 1px solid #edf0ed;
 }
 
-
-/* =========================================================
-   BRAND
-========================================================= */
-
-.sidebar-brand {
-
-  height: 105px;
-
-  flex-shrink: 0;
-
-  display: flex;
-  align-items: center;
-
-  gap: 13px;
-
-  padding: 20px 8px;
-
-  border-bottom: 1px solid #edf0ed;
+.admin-layout .brand-logo {
+    position: relative;
+    width: 49px;
+    height: 49px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 25%, #fffef3 0%, #f9dc7c 35%, #e7b844 66%, #c98720 100%);
+    border: 2px solid rgba(255, 255, 255, 0.85);
+    box-shadow: 0 8px 22px rgba(202, 148, 42, 0.22);
+    overflow: hidden;
 }
 
-
-/* =========================================================
-   COIN LOGO
-========================================================= */
-
-.brand-logo {
-
-  position: relative;
-
-  width: 49px;
-  height: 49px;
-
-  flex-shrink: 0;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  border-radius: 50%;
-
-  background:
-    radial-gradient(
-      circle at 35% 25%,
-      #fffef3 0%,
-      #f9dc7c 35%,
-      #e7b844 66%,
-      #c98720 100%
-    );
-
-  border: 2px solid rgba(255,255,255,.85);
-
-  box-shadow:
-    0 8px 22px rgba(202, 148, 42, .22);
-
-  overflow: hidden;
+.admin-layout .brand-logo::after {
+    content: "";
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 2px solid rgba(132, 89, 15, 0.2);
+    pointer-events: none;
 }
 
-
-.brand-logo::after {
-
-  content: "";
-
-  position: absolute;
-
-  width: 30px;
-  height: 30px;
-
-  border-radius: 50%;
-
-  border: 2px solid rgba(132, 89, 15, .2);
-
-  pointer-events: none;
+.admin-layout .coin {
+    position: absolute;
+    width: 27px;
+    height: 9px;
+    border-radius: 50%;
+    background: linear-gradient(180deg, #f2c65b, #c98720);
+    border: 1.5px solid #a96d13;
 }
 
-
-.coin {
-
-  position: absolute;
-
-  width: 27px;
-  height: 9px;
-
-  border-radius: 50%;
-
-  background: linear-gradient(
-    180deg,
-    #f2c65b,
-    #c98720
-  );
-
-  border: 1.5px solid #a96d13;
+.admin-layout .coin-back {
+    left: 4px;
+    bottom: 8px;
+    transform: rotate(-10deg);
 }
 
-
-.coin-back {
-  left: 4px;
-  bottom: 8px;
-  transform: rotate(-10deg);
+.admin-layout .coin-middle {
+    left: 10px;
+    bottom: 12px;
+    transform: rotate(-7deg);
 }
 
-
-.coin-middle {
-  left: 10px;
-  bottom: 12px;
-  transform: rotate(-7deg);
+.admin-layout .coin-front {
+    left: 16px;
+    bottom: 16px;
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #fff2a9, #e5ad36 65%, #bc7817);
+    color: #83530a;
+    font-size: 12px;
+    font-weight: 900;
+    transform: none;
 }
-
-
-.coin-front {
-
-  left: 16px;
-  bottom: 16px;
-
-  width: 22px;
-  height: 22px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  border-radius: 50%;
-
-  background:
-    radial-gradient(
-      circle at 35% 30%,
-      #fff2a9,
-      #e5ad36 65%,
-      #bc7817
-    );
-
-  color: #83530a;
-
-  font-size: 12px;
-  font-weight: 900;
-
-  transform: none;
-}
-
 
 /* =========================================================
    BRAND TEXT
 ========================================================= */
 
-.brand-text {
-
-  min-width: 0;
-
-  display: flex;
-  flex-direction: column;
+.admin-layout .brand-text {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
 }
 
-
-.brand-text h1 {
-
-  margin: 0;
-
-  color: #14243d;
-
-  font-size: 22px;
-  line-height: 1;
-
-  font-weight: 900;
-
-  letter-spacing: -0.8px;
-
-  white-space: nowrap;
+.admin-layout .brand-text h1 {
+    margin: 0;
+    color: #14243d;
+    font-size: 22px;
+    line-height: 1;
+    font-weight: 900;
+    letter-spacing: -0.8px;
+    white-space: nowrap;
 }
 
-
-.brand-text h1 span {
-  color: #c89427;
+.admin-layout .brand-text h1 span {
+    color: #c89427;
 }
 
-
-.brand-text p {
-
-  margin: 7px 0 0;
-
-  color: #9aa79f;
-
-  font-size: 8px;
-
-  font-weight: 900;
-
-  letter-spacing: 1.7px;
-
-  white-space: nowrap;
+.admin-layout .brand-text p {
+    margin: 7px 0 0;
+    color: #9aa79f;
+    font-size: 8px;
+    font-weight: 900;
+    letter-spacing: 1.7px;
+    white-space: nowrap;
 }
-
 
 /* =========================================================
    ADMIN STATUS
 ========================================================= */
 
-.admin-status {
-
-  flex-shrink: 0;
-
-  height: 42px;
-
-  margin: 14px 4px 8px;
-
-  padding: 0 12px;
-
-  display: flex;
-  align-items: center;
-
-  gap: 8px;
-
-  border-radius: 11px;
-
-  background:
-    linear-gradient(
-      135deg,
-      #f1fbf7,
-      #f8fdfb
-    );
-
-  border: 1px solid #d8eee5;
-
-  color: #16825f;
-
-  font-size: 9px;
-
-  font-weight: 900;
-
-  letter-spacing: .8px;
+.admin-layout .admin-status {
+    flex-shrink: 0;
+    height: 42px;
+    margin: 14px 4px 8px;
+    padding: 0 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-radius: 11px;
+    background: linear-gradient(135deg, #f1fbf7, #f8fdfb);
+    border: 1px solid #d8eee5;
+    color: #16825f;
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: 0.8px;
 }
 
-
-.status-dot {
-
-  width: 7px;
-  height: 7px;
-
-  flex-shrink: 0;
-
-  border-radius: 50%;
-
-  background: #20b981;
-
-  box-shadow:
-    0 0 0 4px rgba(32,185,129,.10);
+.admin-layout .status-dot {
+    width: 7px;
+    height: 7px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: #20b981;
+    box-shadow: 0 0 0 4px rgba(32, 185, 129, 0.10);
 }
-
 
 /* =========================================================
-   NAVIGATION
+   NAVIGATION & ITEMS
 ========================================================= */
 
-.navigation {
-
-  flex: 1;
-
-  min-height: 0;
-
-  display: flex;
-  flex-direction: column;
-
-  gap: 6px;
-
-  padding: 9px 0;
-
-  overflow: hidden;
+.admin-layout .navigation {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 9px 0;
+    overflow: hidden;
 }
 
+.admin-layout .nav-title {
+    height: 26px;
+    display: flex;
+    align-items: center;
+    padding: 0 13px;
+    color: #a5afa9;
+    font-size: 8px;
+    font-weight: 900;
+    letter-spacing: 1.3px;
+}
+
+.admin-layout .nav-title span {
+    white-space: nowrap;
+}
+
+.admin-layout .nav-item {
+    position: relative;
+    width: 100%;
+    height: 52px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    padding: 0 12px;
+    border: 1px solid transparent;
+    border-radius: 13px;
+    background: transparent;
+    color: #66736d;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 750;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.admin-layout .nav-item:hover {
+    color: #17352a;
+    background: #f5f9f7;
+    transform: translateX(2px);
+}
+
+.admin-layout .nav-icon {
+    width: 35px;
+    height: 35px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    background: #f5f7f6;
+    color: #8b9791;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.admin-layout .nav-icon svg {
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.admin-layout .nav-item:hover .nav-icon {
+    color: #15966d;
+    background: #eaf8f2;
+}
+
+/* ACTIVE NAV */
+.admin-layout .nav-item.active {
+    color: #087b59;
+    background: linear-gradient(135deg, #edfaf5, #f8fcfa);
+    border-color: #d7eee5;
+    box-shadow: 0 7px 20px rgba(23, 151, 108, 0.07);
+}
+
+.admin-layout .nav-item.active .nav-icon {
+    color: #ffffff;
+    background: linear-gradient(145deg, #16ad7d, #07865f);
+    box-shadow: 0 7px 15px rgba(12, 145, 101, 0.2);
+}
+
+.admin-layout .active-indicator {
+    position: absolute;
+    right: 0;
+    top: 11px;
+    bottom: 11px;
+    width: 3px;
+    border-radius: 5px 0 0 5px;
+    background: #d0a139;
+}
 
 /* =========================================================
-   NAV TITLE
+   SIDEBAR FOOTER & LOGOUT
 ========================================================= */
 
-.nav-title {
-
-  height: 26px;
-
-  display: flex;
-  align-items: center;
-
-  padding: 0 13px;
-
-  color: #a5afa9;
-
-  font-size: 8px;
-
-  font-weight: 900;
-
-  letter-spacing: 1.3px;
+.admin-layout .sidebar-footer {
+    flex-shrink: 0;
+    padding: 10px 0 17px;
 }
 
-
-.nav-title span {
-  white-space: nowrap;
+.admin-layout .footer-line {
+    height: 1px;
+    margin: 0 4px 12px;
+    background: #edf0ee;
 }
 
-
-/* =========================================================
-   NAV ITEM
-========================================================= */
-
-.nav-item {
-
-  position: relative;
-
-  width: 100%;
-  height: 52px;
-
-  flex-shrink: 0;
-
-  display: flex;
-  align-items: center;
-
-  gap: 13px;
-
-  padding: 0 12px;
-
-  border: 1px solid transparent;
-
-  border-radius: 13px;
-
-  background: transparent;
-
-  color: #66736d;
-
-  font-family: inherit;
-
-  font-size: 12px;
-
-  font-weight: 750;
-
-  text-align: left;
-
-  cursor: pointer;
-
-  transition:
-    background .2s ease,
-    color .2s ease,
-    transform .2s ease,
-    box-shadow .2s ease;
+.admin-layout .logout-button {
+    width: 100%;
+    height: 47px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 11px;
+    padding: 0 12px;
+    border-radius: 12px;
+    border: 1px solid #f4d9de;
+    background: #fffafb;
+    color: #e05269;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: 0.2s ease;
 }
 
-
-.nav-item:hover {
-
-  color: #17352a;
-
-  background: #f5f9f7;
-
-  transform: translateX(2px);
+.admin-layout .logout-button:hover {
+    color: #ffffff;
+    border-color: transparent;
+    background: linear-gradient(135deg, #ee6377, #d83f58);
+    box-shadow: 0 9px 22px rgba(216, 63, 88, 0.18);
+    transform: translateY(-1px);
 }
 
-
-/* =========================================================
-   NAV ICON
-========================================================= */
-
-.nav-icon {
-
-  width: 35px;
-  height: 35px;
-
-  flex-shrink: 0;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  border-radius: 10px;
-
-  background: #f5f7f6;
-
-  color: #8b9791;
-
-  transition:
-    background .2s ease,
-    color .2s ease;
+.admin-layout .logout-icon {
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9px;
+    background: rgba(224, 82, 105, 0.08);
 }
 
-
-.nav-icon svg {
-
-  width: 18px;
-  height: 18px;
-
-  fill: none;
-
-  stroke: currentColor;
-
-  stroke-width: 1.8;
-
-  stroke-linecap: round;
-  stroke-linejoin: round;
+.admin-layout .logout-button:hover .logout-icon {
+    background: rgba(255, 255, 255, 0.14);
 }
 
-
-.nav-item:hover .nav-icon {
-
-  color: #15966d;
-
-  background: #eaf8f2;
+.admin-layout .logout-icon svg {
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
 }
-
-
-/* =========================================================
-   ACTIVE NAV
-========================================================= */
-
-.nav-item.active {
-
-  color: #087b59;
-
-  background:
-    linear-gradient(
-      135deg,
-      #edfaf5,
-      #f8fcfa
-    );
-
-  border-color: #d7eee5;
-
-  box-shadow:
-    0 7px 20px rgba(23, 151, 108, .07);
-}
-
-
-.nav-item.active .nav-icon {
-
-  color: #ffffff;
-
-  background:
-    linear-gradient(
-      145deg,
-      #16ad7d,
-      #07865f
-    );
-
-  box-shadow:
-    0 7px 15px rgba(12, 145, 101, .2);
-}
-
-
-.active-indicator {
-
-  position: absolute;
-
-  right: 0;
-
-  top: 11px;
-  bottom: 11px;
-
-  width: 3px;
-
-  border-radius: 5px 0 0 5px;
-
-  background: #d0a139;
-}
-
-
-/* =========================================================
-   SIDEBAR FOOTER
-========================================================= */
-
-.sidebar-footer {
-
-  flex-shrink: 0;
-
-  padding: 10px 0 17px;
-}
-
-
-.footer-line {
-
-  height: 1px;
-
-  margin: 0 4px 12px;
-
-  background: #edf0ee;
-}
-
-
-/* =========================================================
-   LOGOUT
-========================================================= */
-
-.logout-button {
-
-  width: 100%;
-  height: 47px;
-
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-
-  gap: 11px;
-
-  padding: 0 12px;
-
-  border-radius: 12px;
-
-  border: 1px solid #f4d9de;
-
-  background: #fffafb;
-
-  color: #e05269;
-
-  font-family: inherit;
-
-  font-size: 12px;
-
-  font-weight: 800;
-
-  cursor: pointer;
-
-  transition: .2s ease;
-}
-
-
-.logout-button:hover {
-
-  color: #ffffff;
-
-  border-color: transparent;
-
-  background:
-    linear-gradient(
-      135deg,
-      #ee6377,
-      #d83f58
-    );
-
-  box-shadow:
-    0 9px 22px rgba(216, 63, 88, .18);
-
-  transform: translateY(-1px);
-}
-
-
-.logout-icon {
-
-  width: 32px;
-  height: 32px;
-
-  flex-shrink: 0;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  border-radius: 9px;
-
-  background: rgba(224, 82, 105, .08);
-}
-
-
-.logout-button:hover .logout-icon {
-  background: rgba(255,255,255,.14);
-}
-
-
-.logout-icon svg {
-
-  width: 18px;
-  height: 18px;
-
-  fill: none;
-
-  stroke: currentColor;
-
-  stroke-width: 2;
-
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
 
 /* =========================================================
    SIDEBAR TOGGLE
 ========================================================= */
 
-.sidebar-toggle {
-
-  position: absolute;
-
-  right: -14px;
-  top: 29px;
-
-  width: 29px;
-  height: 29px;
-
-  z-index: 2000;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  padding: 0;
-
-  border-radius: 50%;
-
-  border: 1px solid #e1e7e4;
-
-  background: #ffffff;
-
-  color: #19352c;
-
-  cursor: pointer;
-
-  box-shadow:
-    0 5px 16px rgba(18, 45, 35, .14);
-
-  transition:
-    transform .28s ease,
-    background .2s ease,
-    color .2s ease;
+.admin-layout .sidebar-toggle {
+    position: absolute;
+    right: -14px;
+    top: 29px;
+    width: 29px;
+    height: 29px;
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border-radius: 50%;
+    border: 1px solid #e1e7e4;
+    background: #ffffff;
+    color: #19352c;
+    cursor: pointer;
+    box-shadow: 0 5px 16px rgba(18, 45, 35, 0.14);
+    transition: transform 0.28s ease, background 0.2s ease, color 0.2s ease;
 }
 
-
-.sidebar-toggle:hover {
-
-  color: #ffffff;
-
-  background: #18372d;
-
-  transform: scale(1.06);
+.admin-layout .sidebar-toggle:hover {
+    color: #ffffff;
+    background: #18372d;
+    transform: scale(1.06);
 }
 
-
-.sidebar-toggle svg {
-
-  width: 16px;
-  height: 16px;
-
-  fill: none;
-
-  stroke: currentColor;
-
-  stroke-width: 2.2;
-
-  stroke-linecap: round;
-  stroke-linejoin: round;
-
-  transition: transform .28s ease;
+.admin-layout .sidebar-toggle svg {
+    width: 16px;
+    height: 16px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: transform 0.28s ease;
 }
 
-
-.sidebar-toggle.rotated svg {
-  transform: rotate(180deg);
+.admin-layout .sidebar-toggle.rotated svg {
+    transform: rotate(180deg);
 }
-
 
 /* =========================================================
-   MAIN SECTION
+   MAIN SECTION & PAGE
 ========================================================= */
 
-.main-section {
-
-  width: calc(100% - var(--sidebar-width));
-
-  height: 100vh;
-  height: 100dvh;
-
-  flex-shrink: 0;
-
-  margin-left: var(--sidebar-width);
-
-  min-width: 0;
-  min-height: 0;
-
-  overflow: hidden !important;
-
-  background:
-    radial-gradient(
-      circle at 90% 4%,
-      rgba(218, 174, 65, .07),
-      transparent 25%
-    ),
-    #f7f9f8;
-
-  transition:
-    width .28s cubic-bezier(.4,0,.2,1),
-    margin-left .28s cubic-bezier(.4,0,.2,1);
+.admin-layout .main-section {
+    width: calc(100% - var(--sidebar-width));
+    height: 100vh;
+    height: 100dvh;
+    flex-shrink: 0;
+    margin-left: var(--sidebar-width);
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden !important;
+    background: 
+        radial-gradient(circle at 90% 4%, rgba(218, 174, 65, 0.07), transparent 25%),
+        #f7f9f8;
+    transition: width 0.28s cubic-bezier(0.4, 0, 0.2, 1), margin-left 0.28s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-
-/* =========================================================
-   PAGE
-========================================================= */
-
-.page {
-
-  width: 100%;
-  height: 100%;
-
-  min-width: 0;
-  min-height: 0;
-
-  overflow: hidden !important;
+.admin-layout .page {
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden !important;
 }
 
-
-/* =========================================================
-   PAGE INNER
-========================================================= */
-
-.page-inner {
-
-  width: 100%;
-  height: 100%;
-
-  min-width: 0;
-  min-height: 0;
-
-  padding: 30px;
-
-  overflow: hidden !important;
+.admin-layout .page-inner {
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
+    padding: 30px;
+    overflow: hidden !important;
 }
 
-
 /* =========================================================
-   COLLAPSED SIDEBAR
+   COLLAPSED SIDEBAR STATES
 ========================================================= */
 
 .admin-layout.collapsed {
-
-  --sidebar-width: 82px;
+    --sidebar-width: 82px;
 }
-
-
-/* =========================================================
-   COLLAPSED BRAND
-========================================================= */
 
 .admin-layout.collapsed .sidebar-inner {
-  padding: 0 10px;
+    padding: 0 10px;
 }
-
 
 .admin-layout.collapsed .sidebar-brand {
-
-  justify-content: center;
-
-  padding: 20px 0;
+    justify-content: center;
+    padding: 20px 0;
 }
-
 
 .admin-layout.collapsed .brand-text {
-  display: none;
+    display: none;
 }
-
 
 .admin-layout.collapsed .admin-status {
-
-  width: 9px;
-  height: 9px;
-
-  margin: 14px auto 8px;
-
-  padding: 0;
-
-  border-radius: 50%;
+    width: 9px;
+    height: 9px;
+    margin: 14px auto 8px;
+    padding: 0;
+    border-radius: 50%;
+    justify-content: center;
 }
-
 
 .admin-layout.collapsed .admin-status span:not(.status-dot) {
-  display: none;
+    display: none;
 }
-
-
-/* =========================================================
-   COLLAPSED NAV
-========================================================= */
 
 .admin-layout.collapsed .nav-title {
-  justify-content: center;
-  padding: 0;
+    justify-content: center;
+    padding: 0;
 }
-
 
 .admin-layout.collapsed .nav-title span {
-  display: none;
+    display: none;
 }
-
 
 .admin-layout.collapsed .nav-item {
-
-  justify-content: center;
-
-  width: 54px;
-
-  margin: 0 auto;
-
-  padding: 0;
+    justify-content: center;
+    width: 54px;
+    margin: 0 auto;
+    padding: 0;
 }
-
 
 .admin-layout.collapsed .nav-label {
-  display: none;
+    display: none;
 }
-
 
 .admin-layout.collapsed .active-indicator {
-
-  right: -10px;
-
-  width: 3px;
+    right: -10px;
+    width: 3px;
 }
-
-
-/* =========================================================
-   COLLAPSED FOOTER
-========================================================= */
 
 .admin-layout.collapsed .logout-button {
-
-  width: 54px;
-
-  margin: 0 auto;
-
-  justify-content: center;
-
-  padding: 0;
+    width: 54px;
+    margin: 0 auto;
+    justify-content: center;
+    padding: 0;
 }
-
 
 .admin-layout.collapsed .logout-label {
-  display: none;
+    display: none;
 }
-
-
-/* =========================================================
-   COLLAPSED MAIN
-========================================================= */
 
 .admin-layout.collapsed .main-section {
-
-  width: calc(100% - 82px);
-
-  margin-left: 82px;
+    width: calc(100% - 82px);
+    margin-left: 82px;
 }
 
-
 /* =========================================================
-   LARGE DESKTOP
+   MEDIA QUERIES (RESPONSIVE & MOBILE SIDEBAR FIX)
 ========================================================= */
 
 @media (min-width: 1500px) {
-
-  .admin-layout {
-
-    --sidebar-width: 286px;
-  }
-
-  .admin-layout.collapsed {
-
-    --sidebar-width: 82px;
-  }
-
-  .main-section {
-    width: calc(100% - var(--sidebar-width));
-  }
-
-  .page-inner {
-    padding: 34px 38px;
-  }
+    .admin-layout {
+        --sidebar-width: 286px;
+    }
+    .admin-layout.collapsed {
+        --sidebar-width: 82px;
+    }
+    .admin-layout .main-section {
+        width: calc(100% - var(--sidebar-width));
+    }
+    .admin-layout .page-inner {
+        padding: 34px 38px;
+    }
 }
-
-
-/* =========================================================
-   TABLET
-========================================================= */
 
 @media (max-width: 1050px) {
-
-  .admin-layout {
-
-    --sidebar-width: 235px;
-  }
-
-  .admin-layout.collapsed {
-
-    --sidebar-width: 78px;
-  }
-
-  .page-inner {
-    padding: 24px;
-  }
-
-  .brand-text h1 {
-    font-size: 20px;
-  }
-
-  .nav-item {
-    height: 49px;
-  }
+    .admin-layout {
+        --sidebar-width: 235px;
+    }
+    .admin-layout.collapsed {
+        --sidebar-width: 78px;
+    }
+    .admin-layout .page-inner {
+        padding: 24px;
+    }
+    .admin-layout .brand-text h1 {
+        font-size: 20px;
+    }
+    .admin-layout .nav-item {
+        height: 49px;
+    }
 }
-
-
-/* =========================================================
-   SMALL TABLET
-========================================================= */
 
 @media (max-width: 760px) {
-
-  .admin-layout {
-
-    --sidebar-width: 76px;
-  }
-
-  .admin-layout.collapsed {
-
-    --sidebar-width: 76px;
-  }
-
-  .sidebar-inner {
-    padding: 0 9px;
-  }
-
-  .brand-text,
-  .admin-status span:not(.status-dot),
-  .nav-title,
-  .nav-label,
-  .logout-label {
-    display: none;
-  }
-
-  .sidebar-brand {
-    height: 94px;
-
-    justify-content: center;
-
-    padding: 18px 0;
-  }
-
-  .admin-status {
-
-    width: 9px;
-    height: 9px;
-
-    padding: 0;
-
-    margin: 12px auto 8px;
-
-    border-radius: 50%;
-
-    justify-content: center;
-  }
-
-  .navigation {
-    padding-top: 7px;
-  }
-
-  .nav-item {
-
-    width: 52px;
-
-    margin: 0 auto;
-
-    justify-content: center;
-
-    padding: 0;
-  }
-
-  .active-indicator {
-    right: -9px;
-  }
-
-  .logout-button {
-
-    width: 52px;
-
-    margin: auto;
-
-    justify-content: center;
-
-    padding: 0;
-  }
-
-  .main-section {
-
-    width: calc(100% - 76px);
-
-    margin-left: 76px;
-  }
-
-  .page-inner {
-    padding: 20px;
-  }
-
-  .sidebar-toggle {
-    right: -13px;
-  }
+    .admin-layout,
+    .admin-layout.collapsed {
+        --sidebar-width: 76px;
+    }
+    .admin-layout .sidebar {
+        display: flex !important;
+        transform: translateX(0) !important;
+    }
+    .admin-layout .sidebar-inner {
+        padding: 0 9px;
+    }
+    .admin-layout .brand-text,
+    .admin-layout .admin-status span:not(.status-dot),
+    .admin-layout .nav-title,
+    .admin-layout .nav-label,
+    .admin-layout .logout-label {
+        display: none !important;
+    }
+    .admin-layout .sidebar-brand {
+        height: 94px;
+        justify-content: center;
+        padding: 18px 0;
+    }
+    .admin-layout .admin-status {
+        width: 9px;
+        height: 9px;
+        padding: 0;
+        margin: 12px auto 8px;
+        border-radius: 50%;
+        justify-content: center;
+    }
+    .admin-layout .navigation {
+        padding-top: 7px;
+    }
+    .admin-layout .nav-item {
+        width: 52px;
+        margin: 0 auto;
+        justify-content: center;
+        padding: 0;
+    }
+    .admin-layout .active-indicator {
+        right: -9px;
+    }
+    .admin-layout .logout-button {
+        width: 52px;
+        margin: auto;
+        justify-content: center;
+        padding: 0;
+    }
+    .admin-layout .main-section {
+        width: calc(100% - 76px) !important;
+        margin-left: 76px !important;
+    }
+    .admin-layout .page-inner {
+        padding: 20px;
+    }
+    .admin-layout .sidebar-toggle {
+        right: -13px;
+        display: none; /* Kichik ekranda ortiqcha toggle ko'rinib qolishining oldi olindi */
+    }
 }
-
-
-/* =========================================================
-   MOBILE
-========================================================= */
 
 @media (max-width: 520px) {
-
-  .admin-layout,
-  .admin-layout.collapsed {
-
-    --sidebar-width: 64px;
-  }
-
-  .sidebar-inner {
-    padding: 0 7px;
-  }
-
-  .sidebar-brand {
-    height: 82px;
-  }
-
-  .brand-logo {
-
-    width: 39px;
-    height: 39px;
-  }
-
-  .coin-front {
-
-    width: 18px;
-    height: 18px;
-
-    left: 14px;
-    bottom: 13px;
-
-    font-size: 9px;
-  }
-
-  .coin {
-    width: 22px;
-  }
-
-  .admin-status {
-
-    width: 8px;
-    height: 8px;
-
-    margin-top: 10px;
-  }
-
-  .nav-item {
-
-    width: 45px;
-    height: 45px;
-
-    border-radius: 11px;
-  }
-
-  .nav-icon {
-
-    width: 32px;
-    height: 32px;
-  }
-
-  .nav-icon svg {
-    width: 16px;
-    height: 16px;
-  }
-
-  .logout-button {
-
-    width: 45px;
-    height: 43px;
-
-    border-radius: 11px;
-  }
-
-  .logout-icon {
-    width: 30px;
-    height: 30px;
-  }
-
-  .sidebar-toggle {
-
-    width: 27px;
-    height: 27px;
-
-    right: -13px;
-    top: 27px;
-  }
-
-  .main-section {
-
-    width: calc(100% - 64px);
-
-    margin-left: 64px;
-  }
-
-  .page-inner {
-    padding: 14px;
-  }
+    .admin-layout,
+    .admin-layout.collapsed {
+        --sidebar-width: 64px;
+    }
+    .admin-layout .sidebar {
+        display: flex !important;
+        transform: translateX(0) !important;
+    }
+    .admin-layout .sidebar-inner {
+        padding: 0 7px;
+    }
+    .admin-layout .sidebar-brand {
+        height: 82px;
+    }
+    .admin-layout .brand-logo {
+        width: 39px;
+        height: 39px;
+    }
+    .admin-layout .coin-front {
+        width: 18px;
+        height: 18px;
+        left: 14px;
+        bottom: 13px;
+        font-size: 9px;
+    }
+    .admin-layout .coin {
+        width: 22px;
+    }
+    .admin-layout .admin-status {
+        width: 8px;
+        height: 8px;
+        margin-top: 10px;
+    }
+    .admin-layout .nav-item {
+        width: 45px;
+        height: 45px;
+        border-radius: 11px;
+    }
+    .admin-layout .nav-icon {
+        width: 32px;
+        height: 32px;
+    }
+    .admin-layout .nav-icon svg {
+        width: 16px;
+        height: 16px;
+    }
+    .admin-layout .logout-button {
+        width: 45px;
+        height: 43px;
+        border-radius: 11px;
+    }
+    .admin-layout .logout-icon {
+        width: 30px;
+        height: 30px;
+    }
+    .admin-layout .main-section {
+        width: calc(100% - 64px) !important;
+        margin-left: 64px !important;
+    }
+    .admin-layout .page-inner {
+        padding: 14px;
+    }
 }
-
 
 /* =========================================================
-   NO SCROLL — HARD LOCK
+   NO SCROLL — HARD LOCK (SCOPED)
 ========================================================= */
 
-:global(html),
-:global(body),
-:global(#app),
 .admin-layout,
-.sidebar,
-.sidebar-inner,
-.navigation,
-.main-section,
-.page,
-.page-inner {
-
-  scrollbar-width: none !important;
-
-  -ms-overflow-style: none !important;
+.admin-layout .sidebar,
+.admin-layout .sidebar-inner,
+.admin-layout .navigation,
+.admin-layout .main-section,
+.admin-layout .page,
+.admin-layout .page-inner {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
 }
 
-
-:global(html::-webkit-scrollbar),
-:global(body::-webkit-scrollbar),
-:global(#app::-webkit-scrollbar),
 .admin-layout::-webkit-scrollbar,
-.sidebar::-webkit-scrollbar,
-.sidebar-inner::-webkit-scrollbar,
-.navigation::-webkit-scrollbar,
-.main-section::-webkit-scrollbar,
-.page::-webkit-scrollbar,
-.page-inner::-webkit-scrollbar {
-
-  display: none !important;
-
-  width: 0 !important;
-  height: 0 !important;
-}
+.admin-layout .sidebar::-webkit-scrollbar,
+.admin-layout .sidebar-inner::-webkit-scrollbar,
+.admin-layout .navigation::-webkit-scrollbar,
+.admin-layout .main-section::-webkit-scrollbar,
+.admin-layout .page::-webkit-scrollbar,
+.admin-layout .page-inner::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+} 

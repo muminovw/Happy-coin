@@ -42,6 +42,7 @@
   {/if}
 
 
+  <!-- SIDEBAR -->
   <aside class:sidebar-open={sidebarOpen} class="sidebar">
 
     <!-- Sidebar Header -->

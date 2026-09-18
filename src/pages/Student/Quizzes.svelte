@@ -5,7 +5,7 @@
   export let studentId; // Tizimdagi o'quvchining ID raqami
 
   let quizzes = [];
-  let completedQuizIds = new Set(); // Oldindan ishlangan quizlar ID si
+  let completedQuizIds = new Set();
   let loading = true;
   let selectedQuiz = null; 
   let questions = [];
@@ -17,11 +17,10 @@
     await fetchQuizzesAndResults();
   });
 
-  // Quizlarni va o'quvchining oldingi natijalarini birga tortib kelamiz
+  // 1. Quizlarni va bajarilgan natijalarni yuklash
   async function fetchQuizzesAndResults() {
     loading = true;
     try {
-      // 1. Barcha quizlarni olish
       const { data: quizData, error: quizError } = await supabase
         .from('quizzes')
         .select('*')
@@ -30,14 +29,15 @@
       if (quizError) throw quizError;
       quizzes = quizData || [];
 
-      // 2. O'quvchi oldin qaysi quizlarni ishlaganini tekshirish uchun natijalarni olamiz
-      const { data: resultData, error: resultError } = await supabase
-        .from('student_quiz_results')
-        .select('quiz_id')
-        .eq('student_id', studentId);
+      if (studentId) {
+        const { data: resultData, error: resultError } = await supabase
+          .from('student_quiz_results')
+          .select('quiz_id')
+          .eq('student_id', studentId);
 
-      if (!resultError && resultData) {
-        completedQuizIds = new Set(resultData.map(r => r.quiz_id));
+        if (!resultError && resultData) {
+          completedQuizIds = new Set(resultData.map(r => r.quiz_id));
+        }
       }
     } catch (err) {
       console.error('Maʼlumotlarni yuklashda xatolik:', err.message);
@@ -46,6 +46,7 @@
     }
   }
 
+  // 2. Quizni boshlash
   async function startQuiz(quiz) {
     if (completedQuizIds.has(quiz.id)) {
       alert("Siz bu quizni allaqachon ishlab bo'lgansiz!");
@@ -70,7 +71,13 @@
     }
   }
 
+  // 3. Javoblarni topshirish va Coinlarni RPC orqali xavfsiz qo'shish
   async function submitQuiz() {
+    if (!studentId) {
+      alert("Xatolik: O'quvchi ID topilmadi!");
+      return;
+    }
+
     submitting = true;
     let correctCount = 0;
 
@@ -80,13 +87,12 @@
       }
     });
 
-    // Coinlarni hisoblash (To'g'ri javoblar ulushiga qarab yoki to'liq)
     const totalCoins = selectedQuiz.coins || 15;
     const coinPerQ = Math.round(totalCoins / (questions.length || 1));
     const earnedCoins = correctCount * coinPerQ;
 
     try {
-      // 1. Natijani student_quiz_results jadvaliga yozish
+      // A. Natijani student_quiz_results jadvaliga yozish
       const { error: resError } = await supabase.from('student_quiz_results').insert([
         {
           student_id: studentId,
@@ -98,26 +104,20 @@
       ]);
       if (resError) throw resError;
 
-      // 2. O'quvchining coin balansiga yutgan coinlarini qo'shish (profiles yoki wallets jadvali)
-      // Eslatma: Bazangizdagi coin saqlanadigan jadvalga qarab buni moslaysiz (masalan: profiles yoki wallets)
+      // B. Bazadagi RPC funksiya orqali coin qo'shish (400 xatolikni oldini oladi)
       if (earnedCoins > 0) {
-        // Misol uchun 'profiles' jadvalidagi coinni yangilash:
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('coins')
-          .eq('id', studentId)
-          .single();
+        const { error: rpcError } = await supabase.rpc('add_coins', {
+          student_val: String(studentId),
+          amount_val: earnedCoins
+        });
 
-        const currentCoins = profile ? (profile.coins || 0) : 0;
-
-        await supabase
-          .from('profiles')
-          .update({ coins: currentCoins + earnedCoins })
-          .eq('id', studentId);
+        if (rpcError) {
+          console.error("Coin qo'shishda RPC xatoligi:", rpcError.message);
+        }
       }
 
       completedQuizIds.add(selectedQuiz.id);
-      completedQuizIds = completedQuizIds; // Svelte reaktivligi uchun
+      completedQuizIds = completedQuizIds; 
 
       scoreResult = { correctCount, total: questions.length, earnedCoins };
     } catch (err) {

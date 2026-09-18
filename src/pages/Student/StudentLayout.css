@@ -1,658 +1,128 @@
 /* =========================================================
-   STUDENT LAYOUT — PREMIUM WHITE / GOLD DESIGN
+   HAMBURGER TUGMASI
    ========================================================= */
 
-:global(*) {
-  box-sizing: border-box;
-}
-
-:global(body) {
-  margin: 0;
-  background: #faf9f6;
-  color: #2d2924;
-  font-family:
-    Inter,
-    "Segoe UI",
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    sans-serif;
-}
-
-:global(button) {
-  font-family: inherit;
-}
-
-/* =========================================================
-   VARIABLES
-   ========================================================= */
-
-.layout-container {
-  --gold: #c79a45;
-  --gold-dark: #a8792f;
-  --gold-light: #ead7ad;
-  --champagne: #f7f0e3;
-
-  --brown: #4a4035;
-  --brown-soft: #766b5e;
-
-  --text: #28241f;
-  --text-soft: #71685d;
-  --muted: #9a9186;
-
-  --white: #ffffff;
-  --white-soft: #fcfbf8;
-
-  --border: rgba(92, 72, 45, 0.11);
-
-  --shadow-sm:
-    0 4px 18px rgba(75, 59, 37, 0.06);
-
-  --shadow-md:
-    0 14px 40px rgba(75, 59, 37, 0.09);
-
-  --shadow-lg:
-    0 25px 70px rgba(75, 59, 37, 0.13);
-
-  min-height: 100vh;
+.top-navbar-left {
   display: flex;
-  background:
-    radial-gradient(
-      circle at 5% 5%,
-      rgba(199, 154, 69, 0.08),
-      transparent 25%
-    ),
-    radial-gradient(
-      circle at 95% 95%,
-      rgba(234, 215, 173, 0.16),
-      transparent 28%
-    ),
-    #faf9f6;
+  align-items: center;
+  gap: 14px;
 }
 
-/* =========================================================
-   SIDEBAR
-   ========================================================= */
+.hamburger-btn {
+  display: none; /* Desktopda yashirin, faqat mobilda ko'rinadi */
 
-.sidebar {
-  position: fixed;
-  z-index: 100;
-  left: 18px;
-  top: 18px;
-  bottom: 18px;
-
-  width: 275px;
-
-  display: flex;
   flex-direction: column;
+  justify-content: center;
+  align-items: center;
 
-  padding: 24px 16px;
+  gap: 5px;
 
-  background:
-    linear-gradient(
-      145deg,
-      rgba(255, 255, 255, 0.98),
-      rgba(252, 248, 240, 0.96)
-    );
+  width: 38px;
+  height: 38px;
 
-  border: 1px solid var(--border);
-  border-radius: 26px;
+  border: 1px solid rgba(199, 154, 69, 0.2);
+  border-radius: 11px;
 
-  box-shadow: var(--shadow-lg);
+  background: linear-gradient(135deg, #fffaf0, #f8efdf);
 
-  overflow: hidden;
+  cursor: pointer;
+  flex-shrink: 0;
+
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
-/* premium light effect */
-
-.sidebar::before {
-  content: "";
-  position: absolute;
-  top: -100px;
-  right: -100px;
-
-  width: 220px;
-  height: 220px;
-
-  background: radial-gradient(
-    circle,
-    rgba(199, 154, 69, 0.14),
-    transparent 70%
-  );
-
-  pointer-events: none;
+.hamburger-btn:hover {
+  box-shadow: 0 5px 14px rgba(137, 101, 45, 0.1);
 }
 
-.sidebar::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0;
+.hamburger-btn span {
+  display: block;
 
-  width: 3px;
-  height: 100%;
+  width: 18px;
+  height: 2px;
 
-  background: linear-gradient(
-    to bottom,
-    transparent,
-    var(--gold),
-    transparent
-  );
+  border-radius: 99px;
 
-  opacity: 0.65;
+  background: var(--gold-dark);
+
+  transition: transform 0.28s ease, opacity 0.28s ease;
+}
+
+/* Ochiq holatda X shakliga aylanadi */
+.hamburger-btn.open span:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+
+.hamburger-btn.open span:nth-child(2) {
+  opacity: 0;
+}
+
+.hamburger-btn.open span:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
 }
 
 /* =========================================================
-   SIDEBAR HEADER
+   SIDEBAR ICHIDAGI YOPISH TUGMASI
    ========================================================= */
 
 .sidebar-header {
-  position: relative;
-  z-index: 1;
-
-  padding: 4px 10px 22px;
-
-  border-bottom: 1px solid var(--border);
-}
-
-.sidebar-header h3 {
-  margin: 0;
-
-  color: var(--text);
-
-  font-size: 21px;
-  font-weight: 800;
-  letter-spacing: -0.5px;
-}
-
-.sidebar-header h3::after {
-  content: "";
-
-  display: block;
-
-  width: 34px;
-  height: 3px;
-
-  margin-top: 9px;
-
-  border-radius: 99px;
-
-  background: linear-gradient(
-    90deg,
-    var(--gold),
-    var(--gold-light)
-  );
-}
-
-/* =========================================================
-   BALANCE CARD
-   ========================================================= */
-
-.sidebar-balance-card {
-  position: relative;
-  z-index: 1;
-
-  margin: 20px 2px;
-
-  padding: 19px;
-
-  border-radius: 20px;
-
-  overflow: hidden;
-
-  background:
-    linear-gradient(
-      135deg,
-      #fffdf9 0%,
-      #f8efdf 100%
-    );
-
-  border: 1px solid rgba(199, 154, 69, 0.2);
-
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.9),
-    0 10px 28px rgba(116, 87, 45, 0.08);
-
-  transition:
-    transform 0.3s ease,
-    box-shadow 0.3s ease;
-}
-
-.sidebar-balance-card::before {
-  content: "";
-
-  position: absolute;
-
-  width: 100px;
-  height: 100px;
-
-  right: -35px;
-  top: -45px;
-
-  border-radius: 50%;
-
-  background: rgba(199, 154, 69, 0.12);
-}
-
-.sidebar-balance-card:hover {
-  transform: translateY(-2px);
-
-  box-shadow:
-    0 16px 34px rgba(116, 87, 45, 0.11);
-}
-
-.sidebar-balance-title {
-  position: relative;
-  z-index: 1;
-
-  display: block;
-
-  margin-bottom: 9px;
-
-  color: var(--text-soft);
-
-  font-size: 11px;
-  font-weight: 700;
-
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.sidebar-balance-value {
-  position: relative;
-  z-index: 1;
-
-  display: flex;
-  align-items: center;
-
-  gap: 8px;
-}
-
-.coin-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  width: 31px;
-  height: 31px;
-
-  flex-shrink: 0;
-
-  border-radius: 50%;
-
-  background:
-    linear-gradient(
-      145deg,
-      #f4dc9e,
-      #c18b34
-    );
-
-  box-shadow:
-    0 5px 12px rgba(173, 125, 46, 0.2);
-
-  font-size: 17px;
-}
-
-.sidebar-balance-value strong {
-  color: var(--text);
-
-  font-size: 25px;
-  font-weight: 850;
-
-  letter-spacing: -1px;
-}
-
-.sidebar-balance-value small {
-  align-self: flex-end;
-
-  margin-bottom: 4px;
-
-  color: var(--gold-dark);
-
-  font-size: 9px;
-  font-weight: 800;
-
-  letter-spacing: 1px;
-}
-
-/* =========================================================
-   NAVIGATION
-   ========================================================= */
-
-.sidebar-nav {
-  position: relative;
-  z-index: 1;
-
-  display: flex;
-  flex-direction: column;
-
-  gap: 7px;
-
-  flex: 1;
-}
-
-.sidebar-nav button {
-  position: relative;
-
-  width: 100%;
-
-  display: flex;
-  align-items: center;
-
-  gap: 12px;
-
-  padding: 13px 14px;
-
-  border: 1px solid transparent;
-  border-radius: 14px;
-
-  background: transparent;
-
-  color: var(--text-soft);
-
-  font-size: 13px;
-  font-weight: 650;
-
-  text-align: left;
-
-  cursor: pointer;
-
-  transition:
-    color 0.25s ease,
-    background 0.25s ease,
-    transform 0.25s ease,
-    border-color 0.25s ease,
-    box-shadow 0.25s ease;
-}
-
-.sidebar-nav button::before {
-  content: "";
-
-  width: 4px;
-  height: 0;
-
-  position: absolute;
-  left: -1px;
-  top: 50%;
-
-  border-radius: 10px;
-
-  background: var(--gold);
-
-  transform: translateY(-50%);
-
-  transition: height 0.25s ease;
-}
-
-.sidebar-nav button:hover {
-  color: var(--brown);
-
-  background: rgba(247, 240, 227, 0.7);
-
-  border-color: rgba(199, 154, 69, 0.12);
-
-  transform: translateX(3px);
-}
-
-.sidebar-nav button.active {
-  color: var(--brown);
-
-  background:
-    linear-gradient(
-      100deg,
-      rgba(247, 240, 227, 0.95),
-      rgba(255, 255, 255, 0.95)
-    );
-
-  border-color: rgba(199, 154, 69, 0.18);
-
-  box-shadow:
-    0 7px 20px rgba(115, 87, 48, 0.07);
-}
-
-.sidebar-nav button.active::before {
-  height: 24px;
-}
-
-/* =========================================================
-   FOOTER / LOGOUT
-   ========================================================= */
-
-.sidebar-footer {
-  position: relative;
-  z-index: 1;
-
-  padding-top: 18px;
-
-  border-top: 1px solid var(--border);
-}
-
-.logout-btn {
-  width: 100%;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  gap: 8px;
-
-  padding: 12px 15px;
-
-  border: 1px solid rgba(181, 73, 55, 0.12);
-  border-radius: 13px;
-
-  background: rgba(255, 249, 247, 0.8);
-
-  color: #9a5448;
-
-  font-size: 13px;
-  font-weight: 700;
-
-  cursor: pointer;
-
-  transition:
-    0.25s ease;
-}
-
-.logout-btn:hover {
-  background: #fff3f0;
-
-  border-color: rgba(181, 73, 55, 0.2);
-
-  transform: translateY(-2px);
-
-  box-shadow:
-    0 8px 20px rgba(181, 73, 55, 0.08);
-}
-
-/* =========================================================
-   MAIN CONTENT
-   ========================================================= */
-
-.main-content {
-  width: calc(100% - 311px);
-
-  min-height: 100vh;
-
-  margin-left: 311px;
-
-  padding: 18px 18px 18px 0;
-}
-
-/* =========================================================
-   TOP NAVBAR
-   ========================================================= */
-
-.top-navbar {
-  position: sticky;
-  z-index: 50;
-  top: 18px;
-
-  min-height: 76px;
-
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
 
-  padding: 0 25px;
+.sidebar-close-btn {
+  display: none; /* Desktopda yashirin */
 
-  background:
-    rgba(255, 255, 255, 0.88);
+  align-items: center;
+  justify-content: center;
+
+  width: 30px;
+  height: 30px;
 
   border: 1px solid var(--border);
-  border-radius: 21px;
+  border-radius: 9px;
 
-  box-shadow:
-    0 10px 35px rgba(75, 59, 37, 0.06);
+  background: var(--white-soft);
 
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
+  color: var(--text-soft);
+
+  font-size: 13px;
+  cursor: pointer;
+
+  transition: 0.25s ease;
 }
 
-.top-navbar h2 {
-  margin: 0;
-
-  color: var(--text);
-
-  font-size: 19px;
-  font-weight: 800;
-
-  letter-spacing: -0.4px;
-}
-
-.top-navbar h2::before {
-  content: "";
-
-  display: inline-block;
-
-  width: 7px;
-  height: 7px;
-
-  margin-right: 10px;
-
-  vertical-align: middle;
-
-  border-radius: 50%;
-
-  background: var(--gold);
-
-  box-shadow:
-    0 0 0 5px rgba(199, 154, 69, 0.11);
-}
-
-.user-role {
-  display: inline-flex;
-  align-items: center;
-
-  padding: 8px 14px;
-
-  border: 1px solid rgba(199, 154, 69, 0.2);
-  border-radius: 99px;
-
-  background:
-    linear-gradient(
-      135deg,
-      #fffaf0,
-      #f8efdf
-    );
-
-  color: var(--gold-dark);
-
-  font-size: 11px;
-  font-weight: 800;
-
-  letter-spacing: 0.8px;
-
-  text-transform: uppercase;
-
-  box-shadow:
-    0 5px 14px rgba(137, 101, 45, 0.06);
+.sidebar-close-btn:hover {
+  background: #fff3f0;
+  color: #9a5448;
+  border-color: rgba(181, 73, 55, 0.2);
 }
 
 /* =========================================================
-   CONTENT BODY
+   OVERLAY (mobil sidebar ochiq bo'lganda fon qorong'ilashadi)
    ========================================================= */
 
-.content-body {
-  min-height: calc(100vh - 112px);
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
 
-  margin-top: 18px;
+  background: rgba(40, 32, 20, 0.45);
 
-  padding: 5px 3px 20px;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
 
-  animation: contentAppear 0.45s ease both;
+  animation: overlayFade 0.25s ease both;
 }
 
-@keyframes contentAppear {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+@keyframes overlayFade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 /* =========================================================
-   PREMIUM SCROLLBAR
-   ========================================================= */
-
-:global(::-webkit-scrollbar) {
-  width: 7px;
-  height: 7px;
-}
-
-:global(::-webkit-scrollbar-track) {
-  background: #f8f6f1;
-}
-
-:global(::-webkit-scrollbar-thumb) {
-  border-radius: 99px;
-
-  background:
-    linear-gradient(
-      180deg,
-      #dbc28e,
-      #b88b3b
-    );
-}
-
-:global(::-webkit-scrollbar-thumb:hover) {
-  background:
-    linear-gradient(
-      180deg,
-      #c9a35c,
-      #9f712c
-    );
-}
-
-/* =========================================================
-   TABLET
-   ========================================================= */
-
-@media (max-width: 1050px) {
-  .sidebar {
-    width: 245px;
-  }
-
-  .main-content {
-    width: calc(100% - 276px);
-    margin-left: 276px;
-  }
-
-  .sidebar-nav button {
-    font-size: 12px;
-  }
-
-  .top-navbar {
-    padding: 0 20px;
-  }
-}
-
-/* =========================================================
-   MOBILE
+   MOBILE — sidebarni slide-in panel qilib o'zgartiramiz
    ========================================================= */
 
 @media (max-width: 768px) {
@@ -660,22 +130,38 @@
     display: block;
   }
 
+  .hamburger-btn {
+    display: flex; /* Mobilda ko'rinadi */
+  }
+
+  .sidebar-close-btn {
+    display: flex; /* Mobilda ko'rinadi */
+  }
+
+  /* Endi sidebar sahifa ichida emas, ekran chetidan chiquvchi panel */
   .sidebar {
-    position: relative;
+    position: fixed;
+    z-index: 101;
 
-    left: auto;
-    top: auto;
-    bottom: auto;
+    left: 0;
+    top: 0;
+    bottom: 0;
 
-    width: calc(100% - 24px);
+    width: 280px;
+    max-width: 82vw;
 
-    min-height: auto;
+    margin: 0;
 
-    margin: 12px;
+    border-radius: 0 24px 24px 0;
 
-    padding: 18px 14px;
+    transform: translateX(-100%);
+    transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
 
-    border-radius: 22px;
+    overflow-y: auto;
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
   }
 
   .sidebar-header {
@@ -712,6 +198,7 @@
     margin-top: 15px;
   }
 
+  /* Sidebar endi joy egallamaydi — main-content to'liq kenglikda */
   .main-content {
     width: 100%;
 
@@ -749,15 +236,9 @@
   }
 }
 
-/* =========================================================
-   SMALL MOBILE
-   ========================================================= */
-
 @media (max-width: 450px) {
   .sidebar {
-    margin: 8px;
-
-    width: calc(100% - 16px);
+    width: 250px;
   }
 
   .sidebar-nav {
@@ -786,19 +267,5 @@
   .user-role {
     font-size: 8px;
     padding: 6px 9px;
-  }
-}
-
-/* =========================================================
-   REDUCED MOTION
-   ========================================================= */
-
-@media (prefers-reduced-motion: reduce) {
-  .content-body,
-  .sidebar-balance-card,
-  .sidebar-nav button,
-  .logout-btn {
-    animation: none !important;
-    transition: none !important;
   }
 }

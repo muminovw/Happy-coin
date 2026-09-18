@@ -7,6 +7,9 @@
   const dispatch = createEventDispatcher();
   let activePage = 'dashboard';
 
+  // 🌟 Hamburger menyu uchun state
+  let isSidebarOpen = false;
+
   let currentUser = null;
   let balance = 0;
   let transactions = [];
@@ -15,6 +18,16 @@
   function navigate(page) {
     activePage = page;
     dispatch('navigate', page);
+    // Mobil rejimda sahifa tanlanganda sidebar avtomatik yopiladi
+    isSidebarOpen = false;
+  }
+
+  function toggleSidebar() {
+    isSidebarOpen = !isSidebarOpen;
+  }
+
+  function closeSidebar() {
+    isSidebarOpen = false;
   }
 
   async function handleLogout() {
@@ -76,6 +89,13 @@
       .subscribe();
   }
 
+  // 🌟 Escape tugmasi bosilganda sidebar yopilsin (UX uchun foydali)
+  function handleKeydown(e) {
+    if (e.key === 'Escape' && isSidebarOpen) {
+      closeSidebar();
+    }
+  }
+
   onMount(() => {
     initUserAndBalance();
 
@@ -87,11 +107,32 @@
   });
 </script>
 
+<svelte:window on:keydown={handleKeydown} />
+
 <div class="layout-container">
+
+  <!-- 🌟 Mobil uchun qorong'u overlay (sidebar ochiq bo'lsa) -->
+  {#if isSidebarOpen}
+    <div
+      class="sidebar-overlay"
+      on:click={closeSidebar}
+      role="presentation"
+    ></div>
+  {/if}
+
   <!-- Yon Panel (Sidebar) -->
-  <aside class="sidebar">
+  <aside class="sidebar" class:open={isSidebarOpen}>
     <div class="sidebar-header">
       <h3>Student Panel</h3>
+
+      <!-- 🌟 Sidebar ichidagi yopish tugmasi (faqat mobilda ko'rinadi) -->
+      <button
+        class="sidebar-close-btn"
+        on:click={closeSidebar}
+        aria-label="Yopish"
+      >
+        ✕
+      </button>
     </div>
 
     <!-- Sidebar Balans Widgeti -->
@@ -105,37 +146,36 @@
     </div>
 
     <nav class="sidebar-nav">
-      <button 
-        class:active={activePage === 'dashboard'} 
+      <button
+        class:active={activePage === 'dashboard'}
         on:click={() => navigate('dashboard')}
       >
         📊 Dashboard
       </button>
 
-      <!-- 🌟 QO'SHILGAN JOY: Quizlar sahifasiga o'tish tugmasi -->
-      <button 
-        class:active={activePage === 'quizzes'} 
+      <button
+        class:active={activePage === 'quizzes'}
         on:click={() => navigate('quizzes')}
       >
         📝 Kunlik Quizlar
       </button>
 
-      <button 
-        class:active={activePage === 'balance'} 
+      <button
+        class:active={activePage === 'balance'}
         on:click={() => navigate('balance')}
       >
         💰 Balans va Tarix
       </button>
 
-      <button 
-        class:active={activePage === 'leaderboard'} 
+      <button
+        class:active={activePage === 'leaderboard'}
         on:click={() => navigate('leaderboard')}
       >
         🏆 Reyting (Leaderboard)
       </button>
 
-      <button 
-        class:active={activePage === 'shop'} 
+      <button
+        class:active={activePage === 'shop'}
         on:click={() => navigate('shop')}
       >
         🛒 Do'kon (Shop)
@@ -152,7 +192,23 @@
   <!-- Asosiy Kontent Qismi -->
   <main class="main-content">
     <header class="top-navbar">
-      <h2>O'quvchi Kabineti</h2>
+      <div class="top-navbar-left">
+        <!-- 🌟 Hamburger tugmasi (faqat mobilda ko'rinadi) -->
+        <button
+          class="hamburger-btn"
+          class:open={isSidebarOpen}
+          on:click={toggleSidebar}
+          aria-label="Menyuni ochish/yopish"
+          aria-expanded={isSidebarOpen}
+        >
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+
+        <h2>O'quvchi Kabineti</h2>
+      </div>
+
       <span class="user-role">Student</span>
     </header>
 

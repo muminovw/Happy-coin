@@ -80,7 +80,7 @@
         class:active={activePage === 'givecoin'}
         on:click={() => navigate('givecoin')}
       >
-        🪙 Coin Berish
+         Coin Berish
       </button>
 
       <button

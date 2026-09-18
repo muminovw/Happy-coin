@@ -1,5 +1,5 @@
 import { writable } from 'svelte/store';
-import { supabase } from '../lib/supabaseClient';
+import { supabase } from '../lib/SupabaseClient';
 
 // =====================================================
 // AUTH STATE

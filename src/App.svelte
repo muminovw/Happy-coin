@@ -8,7 +8,7 @@
   // AUTH PAGES
   // =========================================================
   import Login from "./pages/Login.svelte";
-  import Register from "./pages/Register.svelte";
+  // import Register from "./pages/Register.svelte";
   import NotFound from "./pages/NotFound.svelte";
 
   // =========================================================

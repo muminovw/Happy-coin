@@ -112,6 +112,14 @@
         📊 Dashboard
       </button>
 
+      <!-- 🌟 QO'SHILGAN JOY: Quizlar sahifasiga o'tish tugmasi -->
+      <button 
+        class:active={activePage === 'quizzes'} 
+        on:click={() => navigate('quizzes')}
+      >
+        📝 Kunlik Quizlar
+      </button>
+
       <button 
         class:active={activePage === 'balance'} 
         on:click={() => navigate('balance')}
@@ -154,4 +162,3 @@
     </div>
   </main>
 </div>
-

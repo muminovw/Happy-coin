@@ -5,7 +5,7 @@
   // Jadvallar: profiles (role='teacher'), teacher_weekly_limits
   // ============================================================
   import { onMount } from 'svelte';
-  import { supabase } from '$lib/supabaseClient';
+  import { supabase } from '../../lib/SupabaseClient';
 
   /** @typedef {{
    *   id: string,

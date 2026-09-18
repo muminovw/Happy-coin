@@ -529,3 +529,464 @@
   </div>
 </div>
 
+<style>
+  /* =========================================================
+     HAFTALIK LIMIT ESLATMASI
+     Premium Light Theme — GiveCoin.css bilan bir xil til
+     ========================================================= */
+ 
+  .limit-reminder {
+    --limit-accent: var(--green);
+    --limit-accent-light: var(--green-light);
+    --limit-accent-soft: var(--green-soft);
+    --limit-text: var(--green-dark);
+ 
+    width: 100%;
+ 
+    position: relative;
+    overflow: hidden;
+ 
+    margin-bottom: 20px;
+    padding: 18px 20px;
+ 
+    border: 1px solid var(--border);
+    border-radius: 16px;
+ 
+    background:
+      linear-gradient(
+        145deg,
+        var(--limit-accent-soft) 0%,
+        #ffffff 100%
+      );
+ 
+    box-shadow:
+      0 10px 28px
+      rgba(15, 23, 42, 0.045);
+ 
+    transition:
+      border-color 0.25s ease,
+      box-shadow 0.25s ease,
+      background 0.25s ease;
+ 
+    animation: limitReminderIn 0.4s ease both;
+  }
+ 
+  @keyframes limitReminderIn {
+    from {
+      opacity: 0;
+      transform: translateY(-6px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+ 
+  /* Fon dekoratsiyasi — asosiy card bilan bir xil til */
+  .limit-reminder::after {
+    content: "";
+ 
+    position: absolute;
+ 
+    width: 150px;
+    height: 150px;
+ 
+    top: -90px;
+    right: -60px;
+ 
+    border-radius: 50%;
+ 
+    background: rgba(16, 185, 129, 0.06);
+ 
+    filter: blur(22px);
+ 
+    pointer-events: none;
+  }
+ 
+  .limit-reminder.low {
+    --limit-accent: var(--gold);
+    --limit-accent-light: var(--gold-light);
+    --limit-accent-soft: var(--gold-soft);
+    --limit-text: #92400e;
+  }
+ 
+  .limit-reminder.low::after {
+    background: rgba(201, 151, 43, 0.08);
+  }
+ 
+  .limit-reminder.exhausted {
+    --limit-accent: #dc2626;
+    --limit-accent-light: #ef4444;
+    --limit-accent-soft: #fef2f2;
+    --limit-text: #b91c1c;
+  }
+ 
+  .limit-reminder.exhausted::after {
+    background: rgba(220, 38, 38, 0.07);
+  }
+ 
+ 
+  /* =========================================================
+     HEAD ROW
+     ========================================================= */
+ 
+  .limit-reminder__head {
+    display: flex;
+    align-items: center;
+ 
+    gap: 13px;
+ 
+    position: relative;
+    z-index: 1;
+ 
+    margin-bottom: 12px;
+  }
+ 
+  .limit-reminder__icon-wrap {
+    width: 38px;
+    height: 38px;
+ 
+    flex-shrink: 0;
+ 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+ 
+    border-radius: 11px;
+ 
+    color: #ffffff;
+ 
+    background:
+      linear-gradient(
+        135deg,
+        var(--limit-accent),
+        var(--limit-accent-light)
+      );
+ 
+    box-shadow:
+      0 6px 16px
+      rgba(15, 23, 42, 0.12);
+ 
+    font-size: 15px;
+ 
+    transform: rotate(-2deg);
+ 
+    transition: background 0.25s ease;
+  }
+ 
+  .limit-reminder__text {
+    flex: 1 1 auto;
+    min-width: 0;
+ 
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+ 
+  .limit-reminder__label {
+    color: var(--text-dark);
+ 
+    font-size: 13px;
+    font-weight: 750;
+ 
+    letter-spacing: -0.1px;
+ 
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+ 
+  .limit-reminder__sublabel {
+    color: var(--secondary);
+ 
+    font-size: 11.5px;
+    font-weight: 550;
+ 
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+ 
+  .limit-reminder__value {
+    flex-shrink: 0;
+ 
+    display: inline-flex;
+    align-items: baseline;
+ 
+    gap: 4px;
+ 
+    padding: 6px 14px;
+ 
+    border-radius: 999px;
+ 
+    border: 1px solid var(--border-strong);
+ 
+    background: #ffffff;
+ 
+    box-shadow:
+      0 4px 12px
+      rgba(15, 23, 42, 0.05);
+  }
+ 
+  .limit-reminder__value strong {
+    color: var(--limit-text);
+ 
+    font-size: 17px;
+    font-weight: 850;
+ 
+    line-height: 1;
+ 
+    transition: color 0.25s ease;
+  }
+ 
+  .limit-reminder__value-total {
+    color: var(--muted);
+ 
+    font-size: 12px;
+    font-weight: 650;
+  }
+ 
+ 
+  /* =========================================================
+     PROGRESS BAR
+     ========================================================= */
+ 
+  .limit-reminder__bar {
+    width: 100%;
+    height: 7px;
+ 
+    position: relative;
+    z-index: 1;
+ 
+    border-radius: 999px;
+ 
+    overflow: hidden;
+ 
+    background: rgba(15, 23, 42, 0.06);
+  }
+ 
+  .limit-reminder__bar-fill {
+    height: 100%;
+ 
+    border-radius: 999px;
+ 
+    background:
+      linear-gradient(
+        90deg,
+        var(--limit-accent),
+        var(--limit-accent-light)
+      );
+ 
+    box-shadow:
+      0 0 10px
+      rgba(16, 185, 129, 0.25);
+ 
+    transition:
+      width 0.35s ease,
+      background 0.25s ease;
+  }
+ 
+  .limit-reminder.low .limit-reminder__bar-fill {
+    box-shadow:
+      0 0 10px
+      rgba(201, 151, 43, 0.28);
+  }
+ 
+  .limit-reminder.exhausted .limit-reminder__bar-fill {
+    box-shadow:
+      0 0 10px
+      rgba(220, 38, 38, 0.28);
+  }
+ 
+ 
+  /* =========================================================
+     HINT
+     ========================================================= */
+ 
+  .limit-reminder__hint {
+    margin: 10px 0 0;
+ 
+    position: relative;
+    z-index: 1;
+ 
+    color: var(--limit-text);
+ 
+    font-size: 11.5px;
+    font-weight: 600;
+ 
+    line-height: 1.5;
+  }
+ 
+ 
+  /* =========================================================
+     EMPTY STATE
+     ========================================================= */
+ 
+  .limit-reminder__empty {
+    position: relative;
+    z-index: 1;
+ 
+    color: var(--muted);
+ 
+    font-size: 12.5px;
+    font-weight: 550;
+  }
+ 
+ 
+  /* =========================================================
+     SKELETON (LOADING)
+     ========================================================= */
+ 
+  .limit-reminder__skeleton {
+    display: flex;
+    align-items: center;
+ 
+    gap: 13px;
+ 
+    position: relative;
+    z-index: 1;
+  }
+ 
+  .skeleton-lines {
+    flex: 1 1 auto;
+ 
+    display: flex;
+    flex-direction: column;
+ 
+    gap: 8px;
+  }
+ 
+  .skeleton-block {
+    border-radius: 8px;
+ 
+    background:
+      linear-gradient(
+        90deg,
+        rgba(15, 23, 42, 0.06) 25%,
+        rgba(15, 23, 42, 0.11) 37%,
+        rgba(15, 23, 42, 0.06) 63%
+      );
+ 
+    background-size: 400% 100%;
+ 
+    animation: limitSkeletonShimmer 1.4s ease infinite;
+  }
+ 
+  .skeleton-block--icon {
+    width: 38px;
+    height: 38px;
+ 
+    flex-shrink: 0;
+ 
+    border-radius: 11px;
+  }
+ 
+  .skeleton-block--line-sm {
+    width: 55%;
+    height: 10px;
+  }
+ 
+  .skeleton-block--line-lg {
+    width: 85%;
+    height: 12px;
+  }
+ 
+  @keyframes limitSkeletonShimmer {
+    0% {
+      background-position: 100% 0;
+    }
+    100% {
+      background-position: 0 0;
+    }
+  }
+ 
+ 
+  /* =========================================================
+     TABLET
+     ========================================================= */
+ 
+  @media (max-width: 1000px) {
+    .limit-reminder {
+      padding: 16px 18px;
+    }
+  }
+ 
+ 
+  /* =========================================================
+     MOBILE
+     ========================================================= */
+ 
+  @media (max-width: 768px) {
+    .limit-reminder {
+      padding: 15px 16px;
+ 
+      border-radius: 14px;
+    }
+ 
+    .limit-reminder__icon-wrap {
+      width: 34px;
+      height: 34px;
+ 
+      border-radius: 10px;
+ 
+      font-size: 13px;
+    }
+ 
+    .limit-reminder__label {
+      font-size: 12.5px;
+    }
+ 
+    .limit-reminder__sublabel {
+      font-size: 11px;
+    }
+  }
+ 
+ 
+  /* =========================================================
+     SMALL MOBILE
+     ========================================================= */
+ 
+  @media (max-width: 520px) {
+    .limit-reminder__head {
+      flex-wrap: wrap;
+      row-gap: 10px;
+    }
+ 
+    .limit-reminder__text {
+      order: 2;
+ 
+      flex-basis: calc(100% - 51px);
+    }
+ 
+    .limit-reminder__value {
+      order: 3;
+ 
+      flex-basis: 100%;
+ 
+      justify-content: center;
+    }
+ 
+    .limit-reminder__icon-wrap {
+      order: 1;
+    }
+  }
+ 
+ 
+  /* =========================================================
+     REDUCED MOTION
+     ========================================================= */
+ 
+  @media (prefers-reduced-motion: reduce) {
+    .limit-reminder,
+    .skeleton-block {
+      animation: none;
+    }
+ 
+    .limit-reminder,
+    .limit-reminder__bar-fill,
+    .limit-reminder__icon-wrap,
+    .limit-reminder__value strong {
+      transition: none;
+    }
+  }
+</style>

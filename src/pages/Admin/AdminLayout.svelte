@@ -38,6 +38,11 @@
       name: "Quizzes",
       label: "Kunlik Quizlar",
       icon: "quizzes"
+    },
+    {
+      name: "TeacherLimits",
+      label: "Coin Limiti",
+      icon: "coin"
     }
   ];
 
@@ -146,6 +151,14 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96-.44l-.04-.56a2.5 2.5 0 0 0-2.5-2.5H4v-11h.5a2.5 2.5 0 0 0 2.5-2.5V4.5A2.5 2.5 0 0 1 9.5 2z"></path>
                   <path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96-.44l.04-.56a2.5 2.5 0 0 1 2.5-2.5H20v-11h-.5a2.5 2.5 0 0 1-2.5-2.5V4.5A2.5 2.5 0 0 0 14.5 2z"></path>
+                </svg>
+
+              {:else if item.icon === "coin"}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="9"></circle>
+                  <path d="M9.5 15.5c.6.6 1.5 1 2.5 1 1.9 0 3-1 3-2.3 0-1.5-1.3-2-3-2.4-1.9-.4-3-1-3-2.4C9 8 10.1 7 12 7c1 0 1.9.4 2.5 1"></path>
+                  <path d="M12 6v1"></path>
+                  <path d="M12 17v1"></path>
                 </svg>
               {/if}
 

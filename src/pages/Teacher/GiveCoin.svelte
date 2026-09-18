@@ -1,8 +1,10 @@
-
 <script>
   import { onMount } from 'svelte';
   import { supabase } from '../../lib/SupabaseClient';
   import './GiveCoin.css';
+
+  const DEFAULT_WEEKLY_LIMIT = 100;
+  const LOW_LIMIT_THRESHOLD = 20; // shu qiymatdan kam qolsa ogohlantirish rangi
 
   let students = [];
   let selectedStudentId = '';
@@ -14,6 +16,23 @@
   let currentUser = null;
   let message = '';
   let messageType = '';
+
+  // =========================
+  // HAFTALIK LIMIT HOLATI
+  // =========================
+  let weeklyLimit = null; // { total_limit, used_amount, week_start }
+  let loadingLimit = true;
+
+  $: remainingCoins = weeklyLimit
+    ? Math.max(weeklyLimit.total_limit - weeklyLimit.used_amount, 0)
+    : null;
+
+  $: limitPercent = weeklyLimit && weeklyLimit.total_limit > 0
+    ? Math.min((weeklyLimit.used_amount / weeklyLimit.total_limit) * 100, 100)
+    : 0;
+
+  $: isLowLimit = remainingCoins !== null && remainingCoins <= LOW_LIMIT_THRESHOLD;
+  $: isLimitExhausted = remainingCoins !== null && remainingCoins <= 0;
 
   // =========================
   // LOAD CURRENT USER
@@ -31,15 +50,42 @@
   }
 
   // =========================
+  // LOAD WEEKLY LIMIT
+  // =========================
+  async function loadWeeklyLimit() {
+    if (!currentUser) return;
+
+    loadingLimit = true;
+
+    try {
+      const { data, error } = await supabase.rpc('ensure_weekly_limit', {
+        p_teacher_id: currentUser.id,
+        p_default_limit: DEFAULT_WEEKLY_LIMIT
+      });
+
+      if (error) {
+        console.error('Weekly limit load error:', error);
+        showMessage('Haftalik limitni yuklashda xatolik yuz berdi.', 'error');
+        weeklyLimit = null;
+        return;
+      }
+
+      weeklyLimit = data;
+    } catch (error) {
+      console.error('Unexpected weekly limit error:', error);
+      weeklyLimit = null;
+    } finally {
+      loadingLimit = false;
+    }
+  }
+
+  // =========================
   // LOAD STUDENTS
   // =========================
   async function loadStudents() {
     loadingStudents = true;
 
     try {
-      // IMPORTANT:
-      // profiles jadvalida email/class yo'q.
-      // Shuning uchun faqat mavjud ustunlarni olamiz.
       const { data, error } = await supabase
         .from('profiles')
         .select('id, name, role')
@@ -55,7 +101,6 @@
 
       students = data ?? [];
 
-      // Agar tanlangan student o'chirilgan bo'lsa
       if (
         selectedStudentId &&
         !students.some((student) => student.id === selectedStudentId)
@@ -92,13 +137,11 @@
     message = '';
     messageType = '';
 
-    // Student tekshirish
     if (!selectedStudentId) {
       showMessage('Avval o‘quvchini tanlang.', 'error');
       return;
     }
 
-    // Amount tekshirish
     const amount = Number(coinAmount);
 
     if (!Number.isInteger(amount) || amount <= 0) {
@@ -106,7 +149,6 @@
       return;
     }
 
-    // Reason tekshirish
     const cleanReason = reason.trim();
 
     if (cleanReason.length < 3) {
@@ -114,7 +156,6 @@
       return;
     }
 
-    // Current user
     if (!currentUser) {
       await loadCurrentUser();
     }
@@ -124,73 +165,59 @@
       return;
     }
 
+    // Haftalik limitdan oshib ketishni serverga yubormasdan oldin ogohlantiramiz
+    if (remainingCoins !== null && amount > remainingCoins) {
+      showMessage(
+        `Haftalik limitingiz yetarli emas. Qoldiq: ${remainingCoins} coin.`,
+        'error'
+      );
+      return;
+    }
+
     givingCoin = true;
 
     try {
       // =========================
-      // CHECK CURRENT PROFILE
+      // AWARD_COINS RPC
+      // limitni tekshiradi, transactions'ga yozadi
+      // va wallets balansini bitta tranzaksiyada yangilaydi
       // =========================
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('id, role')
-        .eq('id', currentUser.id)
-        .single();
+      const { error: awardError } = await supabase.rpc('award_coins', {
+        p_teacher_id: currentUser.id,
+        p_student_id: selectedStudentId,
+        p_amount: amount,
+        p_reason: cleanReason
+      });
 
-      if (profileError) {
-        console.error('Profile error:', profileError);
-        showMessage('Teacher profilingiz topilmadi.', 'error');
-        return;
-      }
-
-      if (!['teacher', 'admin'].includes(profile.role)) {
+      if (awardError) {
+        console.error('Award coins error:', awardError);
         showMessage(
-          'Sizda coin berish uchun kerakli huquq mavjud emas.',
+          awardError.message || 'Coin berishda xatolik yuz berdi.',
           'error'
         );
         return;
       }
 
-      // =========================
-      // INSERT TRANSACTION
-      // =========================
-      const { error: transactionError } = await supabase
-        .from('transactions')
-        .insert({
-          student_id: selectedStudentId,
-          created_by: currentUser.id,
-          amount: amount,
-          reason: cleanReason,
-          type: 'coin'
-        });
+      // Limit holatini serverdan qayta yuklaymiz (aniq qolgan qiymat uchun)
+      await loadWeeklyLimit();
 
-      if (transactionError) {
-        console.error('Transaction error:', transactionError);
+      const newRemaining = weeklyLimit
+        ? Math.max(weeklyLimit.total_limit - weeklyLimit.used_amount, 0)
+        : null;
 
-        showMessage(
-          transactionError.message || 'Coin berishda xatolik yuz berdi.',
-          'error'
-        );
-
-        return;
-      }
-
-      // SUCCESS
       showMessage(
-        `${amount} coin muvaffaqiyatli berildi!`,
+        newRemaining !== null
+          ? `${amount} coin muvaffaqiyatli berildi! Haftalik qoldiq: ${newRemaining} coin.`
+          : `${amount} coin muvaffaqiyatli berildi!`,
         'success'
       );
 
-      // Formani tozalash
       selectedStudentId = '';
       coinAmount = '';
       reason = '';
     } catch (error) {
       console.error('Give coin error:', error);
-
-      showMessage(
-        'Kutilmagan xatolik yuz berdi.',
-        'error'
-      );
+      showMessage('Kutilmagan xatolik yuz berdi.', 'error');
     } finally {
       givingCoin = false;
     }
@@ -202,15 +229,11 @@
   let realtimeChannel;
 
   function setupRealtime() {
-    // Oldingi channel bo'lsa o'chiramiz
     if (realtimeChannel) {
       supabase.removeChannel(realtimeChannel);
       realtimeChannel = null;
     }
 
-    // MUHIM:
-    // .on() avval
-    // .subscribe() keyin
     realtimeChannel = supabase
       .channel('teacher-students-list')
       .on(
@@ -222,8 +245,6 @@
           filter: 'role=eq.student'
         },
         (payload) => {
-          console.log('Student INSERT:', payload);
-
           const newStudent = payload.new;
 
           if (
@@ -243,13 +264,10 @@
           table: 'profiles'
         },
         (payload) => {
-          console.log('Student UPDATE:', payload);
-
           const updatedStudent = payload.new;
 
           if (!updatedStudent) return;
 
-          // Agar student bo'lsa update qilamiz
           if (updatedStudent.role === 'student') {
             const exists = students.some(
               (student) => student.id === updatedStudent.id
@@ -257,15 +275,12 @@
 
             if (exists) {
               students = students.map((student) =>
-                student.id === updatedStudent.id
-                  ? updatedStudent
-                  : student
+                student.id === updatedStudent.id ? updatedStudent : student
               );
             } else {
               students = [updatedStudent, ...students];
             }
           } else {
-            // Student role'dan boshqa role'ga o'tgan bo'lsa
             students = students.filter(
               (student) => student.id !== updatedStudent.id
             );
@@ -284,23 +299,35 @@
           table: 'profiles'
         },
         (payload) => {
-          console.log('Student DELETE:', payload);
-
           const deletedId = payload.old?.id;
 
           if (!deletedId) return;
 
-          students = students.filter(
-            (student) => student.id !== deletedId
-          );
+          students = students.filter((student) => student.id !== deletedId);
 
           if (selectedStudentId === deletedId) {
             selectedStudentId = '';
           }
         }
       )
+      // Boshqa qurilma/oynadan coin berilsa ham limit banneri yangilanadi
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'teacher_weekly_limits'
+        },
+        (payload) => {
+          const row = payload.new;
+
+          if (row && currentUser && row.teacher_id === currentUser.id) {
+            weeklyLimit = row;
+          }
+        }
+      )
       .subscribe((status) => {
-        console.log('Students realtime:', status);
+        console.log('Realtime status:', status);
       });
   }
 
@@ -309,7 +336,7 @@
   // =========================
   onMount(async () => {
     await loadCurrentUser();
-    await loadStudents();
+    await Promise.all([loadStudents(), loadWeeklyLimit()]);
 
     setupRealtime();
 
@@ -334,6 +361,42 @@
       <span>✦</span>
       COINS
     </div>
+  </div>
+
+  <!-- HAFTALIK LIMIT ESLATMASI -->
+  <div class="limit-reminder" class:low={isLowLimit} class:exhausted={isLimitExhausted}>
+    {#if loadingLimit}
+      <div class="limit-reminder__loading">Haftalik limit yuklanmoqda...</div>
+    {:else if weeklyLimit}
+      <div class="limit-reminder__top">
+        <span class="limit-reminder__label">
+          {isLimitExhausted ? 'Haftalik limit tugadi' : 'Haftalik coin limitingiz'}
+        </span>
+        <span class="limit-reminder__value">
+          {remainingCoins} / {weeklyLimit.total_limit} coin qoldi
+        </span>
+      </div>
+
+      <div class="limit-reminder__bar">
+        <div
+          class="limit-reminder__bar-fill"
+          style="width: {limitPercent}%"
+        ></div>
+      </div>
+
+      {#if isLimitExhausted}
+        <p class="limit-reminder__hint">
+          Bu hafta uchun ajratilgan coin tugadi. Admin bilan bog'laning yoki
+          keyingi haftani kuting.
+        </p>
+      {:else if isLowLimit}
+        <p class="limit-reminder__hint">
+          Diqqat: haftalik limitingiz tugashiga oz qoldi.
+        </p>
+      {/if}
+    {:else}
+      <div class="limit-reminder__loading">Limit ma'lumoti mavjud emas.</div>
+    {/if}
   </div>
 
   {#if message}
@@ -412,11 +475,18 @@
             type="number"
             min="1"
             step="1"
+            max={remainingCoins ?? undefined}
             placeholder="Masalan: 10"
             bind:value={coinAmount}
-            disabled={givingCoin}
+            disabled={givingCoin || isLimitExhausted}
           />
         </div>
+
+        {#if remainingCoins !== null}
+          <small class="hint">
+            Maksimal bera olasiz: {remainingCoins} coin
+          </small>
+        {/if}
       </div>
 
       <!-- REASON -->
@@ -431,7 +501,7 @@
           maxlength="250"
           placeholder="Masalan: Uy vazifasini juda yaxshi bajargani uchun..."
           bind:value={reason}
-          disabled={givingCoin}
+          disabled={givingCoin || isLimitExhausted}
         ></textarea>
 
         <div class="character-count">
@@ -443,11 +513,13 @@
       <button
         type="submit"
         class="give-button"
-        disabled={givingCoin || loadingStudents}
+        disabled={givingCoin || loadingStudents || isLimitExhausted}
       >
         {#if givingCoin}
           <span class="spinner"></span>
           Coin berilmoqda...
+        {:else if isLimitExhausted}
+          Haftalik limit tugagan
         {:else}
           <span>✦</span>
           Give Coins

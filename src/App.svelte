@@ -20,6 +20,8 @@
   import AdminProducts from "./pages/Admin/Products.svelte";
   import AdminReports from "./pages/Admin/Reports.svelte";
   import AdminUsers from "./pages/Admin/Users.svelte";
+  import AdminLimits from "./pages/Admin/Limit.svelte";
+  import AdminQuizzes from "./pages/Admin/AdminQuizes.svelte";
 
   // =========================================================
   // TEACHER
@@ -53,6 +55,8 @@
       products
       reports
       users
+      teacherlimits
+      quizzes
 
     teacher:
       dashboard
@@ -99,7 +103,9 @@
       "orders",
       "products",
       "reports",
-      "users"
+      "users",
+      "teacherlimits",
+      "quizzes"
     ];
 
     if (allowedPages.includes(page)) {
@@ -401,6 +407,14 @@
         {:else if currentAdminPage === "users"}
 
           <AdminUsers />
+
+        {:else if currentAdminPage === "teacherlimits"}
+
+          <AdminLimits />
+
+        {:else if currentAdminPage === "quizzes"}
+
+          <AdminQuizzes />
 
         {:else}
 

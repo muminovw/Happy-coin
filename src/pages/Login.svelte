@@ -94,7 +94,7 @@
       </div>
 
       <button type="submit" class="submit-btn" disabled={loading}>
-        {loading ? "Tekshirilmoqda..." : "Kirish"}
+        {loading ? "Tekshirilmoqda...." : "Kirish"}
       </button>
     </form>
 

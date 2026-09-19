@@ -93,7 +93,7 @@
 
     <div class="sidebar-footer">
       <button class="logout-btn" on:click={handleLogout}>
-        🚪 Chiqish
+        🚪 Log Out
       </button>
     </div>
   </aside>

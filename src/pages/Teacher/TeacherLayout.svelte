@@ -6,14 +6,19 @@
 
   const dispatch = createEventDispatcher();
 
-  let activePage = 'dashboard';
+  // Parent dan keladigan active page
+  export let currentActivePage = 'dashboard';
+
+  let activePage = currentActivePage;
   let sidebarOpen = false;
+
+  // Parent o'zgarganda sync qilamiz
+  $: activePage = currentActivePage;
 
   function navigate(page) {
     activePage = page;
     sidebarOpen = false;
-
-    dispatch('navigate', page);
+    dispatch('navigate', { page });
   }
 
   function toggleSidebar() {
@@ -30,13 +35,9 @@
   }
 </script>
 
-
 <div class="layout-container">
 
-  <!-- =====================================================
-       MOBILE OVERLAY
-       ===================================================== -->
-
+  <!-- Mobile Overlay -->
   {#if sidebarOpen}
     <button
       class="sidebar-overlay"
@@ -45,21 +46,11 @@
     ></button>
   {/if}
 
-
-  <!-- =====================================================
-       SIDEBAR
-       ===================================================== -->
-
+  <!-- Sidebar -->
   <aside class:sidebar-open={sidebarOpen} class="sidebar">
-
-    <!-- Sidebar Header -->
     <div class="sidebar-header">
-
       <div class="sidebar-title-row">
-
         <h3>Teacher Panel</h3>
-
-        <!-- Mobile Close -->
         <button
           class="mobile-close-btn"
           aria-label="Menu yopish"
@@ -67,15 +58,10 @@
         >
           ×
         </button>
-
       </div>
-
     </div>
 
-
-    <!-- Sidebar Navigation -->
     <nav class="sidebar-nav">
-
       <button
         class:active={activePage === 'dashboard'}
         on:click={() => navigate('dashboard')}
@@ -97,34 +83,24 @@
         👨‍🎓 O'quvchilar
       </button>
 
+      <button
+        class:active={activePage === 'groups'}
+        on:click={() => navigate('groups')}
+      >
+        📚 Guruhlar
+      </button>
     </nav>
 
-
-    <!-- Sidebar Footer -->
     <div class="sidebar-footer">
-
-      <button
-        class="logout-btn"
-        on:click={handleLogout}
-      >
+      <button class="logout-btn" on:click={handleLogout}>
         🚪 Chiqish
       </button>
-
     </div>
-
   </aside>
 
-
-  <!-- =====================================================
-       MAIN CONTENT
-       ===================================================== -->
-
+  <!-- Main Content -->
   <main class="main-content">
-
-    <!-- Top Navbar -->
     <header class="top-navbar">
-
-      <!-- Mobile Hamburger -->
       <button
         class:open={sidebarOpen}
         class="hamburger-btn"
@@ -137,21 +113,12 @@
         <span></span>
       </button>
 
-
       <h2>O'qituvchi Kabineti</h2>
-
-      <span class="user-role">
-        Teacher
-      </span>
-
+      <span class="user-role">Teacher</span>
     </header>
 
-
-    <!-- Page Content -->
     <div class="content-body">
       <slot />
     </div>
-
   </main>
-
 </div>

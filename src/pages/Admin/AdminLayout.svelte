@@ -6,48 +6,22 @@
 
   const dispatch = createEventDispatcher();
 
-  let collapsed = false;
+  let collapsed = false;          // Desktop collapse
+  let sidebarOpen = false;        // Mobile open/close
 
   const menuItems = [
-    {
-      name: "Dashboard",
-      label: "Dashboard",
-      icon: "dashboard"
-    },
-    {
-      name: "Orders",
-      label: "Buyurtmalar",
-      icon: "orders"
-    },
-    {
-      name: "Products",
-      label: "Tovarlar",
-      icon: "products"
-    },
-    {
-      name: "Reports",
-      label: "Hisobotlar",
-      icon: "reports"
-    },
-    {
-      name: "Users",
-      label: "Foydalanuvchilar",
-      icon: "users"
-    },
-    {
-      name: "Quizzes",
-      label: "Kunlik Quizlar",
-      icon: "quizzes"
-    },
-    {
-      name: "TeacherLimits",
-      label: "Coin Limiti",
-      icon: "coin"
-    }
+    { name: "Dashboard", label: "Dashboard", icon: "dashboard" },
+    { name: "Orders", label: "Buyurtmalar", icon: "orders" },
+    { name: "Products", label: "Tovarlar", icon: "products" },
+    { name: "Reports", label: "Hisobotlar", icon: "reports" },
+    { name: "Users", label: "Foydalanuvchilar", icon: "users" },
+    { name: "Quizzes", label: "Kunlik Quizlar", icon: "quizzes" },
+    { name: "TeacherLimits", label: "Coin Limiti", icon: "coin" }
   ];
 
   function navigate(page) {
     dispatch("navigate", { page });
+    sidebarOpen = false; // mobil da avtomatik yopiladi
   }
 
   function logout() {
@@ -55,20 +29,44 @@
   }
 
   function toggleSidebar() {
-    collapsed = !collapsed;
+    if (typeof window !== "undefined" && window.innerWidth <= 768) {
+      sidebarOpen = !sidebarOpen;
+    } else {
+      collapsed = !collapsed;
+    }
+  }
+
+  function closeSidebar() {
+    sidebarOpen = false;
+  }
+
+  function handleKeydown(e) {
+    if (e.key === "Escape" && sidebarOpen) {
+      closeSidebar();
+    }
   }
 </script>
 
-<div class:collapsed class="admin-layout">
+<svelte:window on:keydown={handleKeydown} />
+
+<div class="admin-layout" class:collapsed class:sidebar-open={sidebarOpen}>
+
+  <!-- ================= MOBILE OVERLAY ================= -->
+  {#if sidebarOpen}
+    <button
+      class="sidebar-overlay"
+      aria-label="Sidebarni yopish"
+      on:click={closeSidebar}
+    ></button>
+  {/if}
 
   <!-- ================= SIDEBAR ================= -->
-  <aside class="sidebar">
+  <aside class="sidebar" class:sidebar-open={sidebarOpen}>
 
     <div class="sidebar-inner">
 
       <!-- BRAND -->
       <div class="sidebar-brand">
-
         <div class="brand-logo">
           <div class="coin coin-back"></div>
           <div class="coin coin-middle"></div>
@@ -79,7 +77,6 @@
           <h1>Coin<span>Edu</span></h1>
           <p>ACADEMY SYSTEM</p>
         </div>
-
       </div>
 
       <!-- ADMIN STATUS -->
@@ -88,10 +85,8 @@
         <span>ADMIN PANEL</span>
       </div>
 
-
       <!-- NAVIGATION -->
       <nav class="navigation">
-
         <div class="nav-title">
           <span>ASOSIY</span>
         </div>
@@ -105,9 +100,7 @@
             aria-label={item.label}
             title={collapsed ? item.label : ""}
           >
-
             <span class="nav-icon">
-
               {#if item.icon === "dashboard"}
                 <svg viewBox="0 0 24 24">
                   <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
@@ -115,7 +108,6 @@
                   <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
                   <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
                 </svg>
-
               {:else if item.icon === "orders"}
                 <svg viewBox="0 0 24 24">
                   <path d="M6 3h12v18H6z"></path>
@@ -123,14 +115,12 @@
                   <path d="M9 12h6"></path>
                   <path d="M9 16h4"></path>
                 </svg>
-
               {:else if item.icon === "products"}
                 <svg viewBox="0 0 24 24">
                   <path d="M4 7.5 12 3l8 4.5v9L12 21l-8-4.5z"></path>
                   <path d="M4 7.5 12 12l8-4.5"></path>
                   <path d="M12 12v9"></path>
                 </svg>
-
               {:else if item.icon === "reports"}
                 <svg viewBox="0 0 24 24">
                   <path d="M4 19V5"></path>
@@ -138,7 +128,6 @@
                   <path d="m7 15 4-4 3 2 5-6"></path>
                   <path d="M16 7h3v3"></path>
                 </svg>
-
               {:else if item.icon === "users"}
                 <svg viewBox="0 0 24 24">
                   <circle cx="9" cy="8" r="3"></circle>
@@ -146,13 +135,11 @@
                   <circle cx="17" cy="9" r="2.3"></circle>
                   <path d="M16 15c2.8.2 4.5 1.8 4.5 4"></path>
                 </svg>
-
               {:else if item.icon === "quizzes"}
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96-.44l-.04-.56a2.5 2.5 0 0 0-2.5-2.5H4v-11h.5a2.5 2.5 0 0 0 2.5-2.5V4.5A2.5 2.5 0 0 1 9.5 2z"></path>
                   <path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96-.44l.04-.56a2.5 2.5 0 0 1 2.5-2.5H20v-11h-.5a2.5 2.5 0 0 1-2.5-2.5V4.5A2.5 2.5 0 0 0 14.5 2z"></path>
                 </svg>
-
               {:else if item.icon === "coin"}
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <circle cx="12" cy="12" r="9"></circle>
@@ -161,26 +148,19 @@
                   <path d="M12 17v1"></path>
                 </svg>
               {/if}
-
             </span>
 
-            <span class="nav-label">
-              {item.label}
-            </span>
+            <span class="nav-label">{item.label}</span>
 
             {#if currentActivePage === item.name}
               <span class="active-indicator"></span>
             {/if}
-
           </button>
         {/each}
-
       </nav>
-
 
       <!-- SIDEBAR FOOTER -->
       <div class="sidebar-footer">
-
         <div class="footer-line"></div>
 
         <button
@@ -189,7 +169,6 @@
           on:click={logout}
           title={collapsed ? "Chiqish" : ""}
         >
-
           <span class="logout-icon">
             <svg viewBox="0 0 24 24">
               <path d="M10 17l5-5-5-5"></path>
@@ -197,19 +176,12 @@
               <path d="M14 4h5a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-5"></path>
             </svg>
           </span>
-
-          <span class="logout-label">
-            Chiqish
-          </span>
-
+          <span class="logout-label">Chiqish</span>
         </button>
-
       </div>
-
     </div>
 
-
-    <!-- COLLAPSE BUTTON -->
+    <!-- Desktop Collapse Button -->
     <button
       type="button"
       class="sidebar-toggle"
@@ -218,25 +190,37 @@
       aria-label={collapsed ? "Sidebarni ochish" : "Sidebarni yopish"}
       title={collapsed ? "Sidebarni ochish" : "Sidebarni yopish"}
     >
-
       <svg viewBox="0 0 24 24">
         <path d="m15 18-6-6 6-6"></path>
       </svg>
-
     </button>
-
   </aside>
-
 
   <!-- ================= MAIN ================= -->
   <main class="main-section">
+
+    <!-- Mobile Top Navbar (Hamburger) -->
+    <header class="mobile-top-navbar">
+      <button
+        class="hamburger-btn"
+        class:open={sidebarOpen}
+        aria-label="Menu ochish"
+        aria-expanded={sidebarOpen}
+        on:click={toggleSidebar}
+      >
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+      <h2>Admin Panel</h2>
+      <span class="user-role">Admin</span>
+    </header>
 
     <div class="page">
       <div class="page-inner">
         <slot />
       </div>
     </div>
-
   </main>
-
 </div>

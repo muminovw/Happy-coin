@@ -1,16 +1,13 @@
 /* =========================================================
-   ADMIN QUIZ CREATOR — Professional + Scroll Fixed
+   ADMIN QUIZ CREATOR — Professional Design + Scroll Fixed
    ========================================================= */
 
 .admin-quiz-creator {
   max-width: 860px;
   margin: 0 auto;
-  padding: 24px 20px 80px;          /* pastga joy qoldirdik */
+  padding: 24px 20px 100px;
   font-family: Inter, "Segoe UI", system-ui, sans-serif;
   color: #2c2114;
-  min-height: 100%;
-  overflow-y: auto;                 /* scroll ishlashi uchun */
-  -webkit-overflow-scrolling: touch;
 }
 
 /* Header */
@@ -297,7 +294,7 @@
 /* Save section */
 .save-section {
   margin-top: 28px;
-  padding-bottom: 20px;
+  padding-bottom: 40px;
 }
 
 .save-btn {
@@ -331,7 +328,7 @@
 /* Responsive */
 @media (max-width: 640px) {
   .admin-quiz-creator {
-    padding: 16px 14px 70px;
+    padding: 16px 14px 80px;
   }
 
   .page-header h2 {
@@ -354,10 +351,6 @@
   .btn-add {
     flex: 1;
     text-align: center;
-  }
-
-  .option-row {
-    flex-wrap: wrap;
   }
 
   .save-btn {

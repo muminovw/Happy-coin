@@ -7,10 +7,9 @@
   let coins = 15;
   let date = new Date().toISOString().split('T')[0];
 
-  // Savollar massivi (type qo'shildi)
   let questions = [
     {
-      type: 'multiple',          // 'multiple' yoki 'text'
+      type: 'multiple',
       question_text: '',
       options: ['', '', '', ''],
       correct_answer: ''
@@ -44,7 +43,7 @@
       questions[index].options = [];
       questions[index].correct_answer = '';
     }
-    questions = [...questions]; // reactivity uchun
+    questions = [...questions];
   }
 
   async function handleSaveQuiz() {
@@ -53,7 +52,6 @@
       return;
     }
 
-    // Validatsiya
     for (let q of questions) {
       if (!q.question_text.trim()) {
         alert("Barcha savollar to‘ldirilishi shart!");
@@ -71,7 +69,6 @@
 
     loading = true;
     try {
-      // 1. Asosiy quizni saqlash
       const { data: quizData, error: quizError } = await supabase
         .from('quizzes')
         .insert([{ title, description, coins, status: 'active', date }])
@@ -81,14 +78,13 @@
       if (quizError) throw quizError;
       const quizId = quizData.id;
 
-      // 2. Savollarni saqlash
       for (let q of questions) {
         const { error: qError } = await supabase
           .from('quiz_questions')
           .insert([{
             quiz_id: quizId,
             question_text: q.question_text,
-            question_type: q.type,                    // yangi maydon
+            question_type: q.type,
             options: q.type === 'multiple' ? q.options : null,
             correct_answer: q.correct_answer
           }]);
@@ -96,9 +92,8 @@
         if (qError) throw qError;
       }
 
-      alert("Quiz va uning savollari muvaffaqiyatli saqlandi! 🎉");
+      alert("Quiz muvaffaqiyatli saqlandi! 🎉");
 
-      // Formani tozalash
       title = '';
       description = '';
       coins = 15;
@@ -112,8 +107,8 @@
         }
       ];
     } catch (err) {
-      console.error("Saqlashda xatolik:", err.message);
-      alert("Xatolik yuz berdi: " + err.message);
+      console.error(err);
+      alert("Xatolik: " + err.message);
     } finally {
       loading = false;
     }
@@ -126,7 +121,6 @@
     <p class="subtitle">Variantli va yozma savollar bilan quiz yarating</p>
   </div>
 
-  <!-- Asosiy ma'lumotlar -->
   <div class="card">
     <div class="form-group">
       <label>Quiz nomi</label>
@@ -150,7 +144,6 @@
     </div>
   </div>
 
-  <!-- Savollar -->
   <div class="section-title">
     <h3>Savollar ro‘yxati</h3>
     <div class="add-buttons">
@@ -195,7 +188,6 @@
         />
       </div>
 
-      <!-- VARIANTLI SAVOL -->
       {#if q.type === 'multiple'}
         <div class="options-container">
           <label>Variantlar va to‘g‘ri javob</label>
@@ -219,8 +211,6 @@
             </div>
           {/each}
         </div>
-
-      <!-- YOZMA SAVOL -->
       {:else}
         <div class="form-group">
           <label>To‘g‘ri javob (yozma)</label>
@@ -236,7 +226,6 @@
     </div>
   {/each}
 
-  <!-- Saqlash tugmasi -->
   <div class="save-section">
     <button class="save-btn" disabled={loading} on:click={handleSaveQuiz}>
       {loading ? 'Saqlanmoqda...' : 'Quizni bazaga saqlash'}

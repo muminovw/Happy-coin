@@ -98,8 +98,8 @@
       </button>
     </form>
 
-    <div class="register-link">
+    <!-- <div class="register-link">
       <p>Hisobingiz yo'qmi? <button type="button" class="link-btn" on:click={goToRegister}>Ro'yxatdan o'tish</button></p>
-    </div>
+    </div> -->
   </div>
 </div>
